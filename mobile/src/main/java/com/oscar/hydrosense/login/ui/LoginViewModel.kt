@@ -28,6 +28,7 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
     }
 
     private var _response = MutableLiveData<LoginResponse>();
+    var response: LiveData<LoginResponse> = _response;
 
     fun login(correo: String, contrasenia: String){
         val loginRequest = LoginRequest(correo, contrasenia);

@@ -41,6 +41,7 @@ fun Login(modifier: Modifier, loginViewModel: LoginViewModel){
 
     val correo by loginViewModel.correo.observeAsState(initial = "");
     val contrasenia by loginViewModel.contrasenia.observeAsState(initial = "");
+    val response by loginViewModel.response.observeAsState(initial = "");
 
     Column(Modifier.fillMaxSize().padding(31.dp)){
 
@@ -68,8 +69,7 @@ fun Login(modifier: Modifier, loginViewModel: LoginViewModel){
 
             Button(onClick = {
                 Log.i("OSCAR", "${correo} ${contrasenia}")
-                loginViewModel.login(correo, contrasenia);
-                             },
+                loginViewModel.login(correo, contrasenia);},
                 shape = RoundedCornerShape(22.dp),
                 modifier = Modifier.fillMaxWidth()) {
                 Text("Iniciar sesion")
