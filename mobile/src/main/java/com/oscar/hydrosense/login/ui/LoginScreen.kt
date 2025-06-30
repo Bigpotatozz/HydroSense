@@ -14,6 +14,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -28,23 +29,19 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun LoginScreen(modifier: Modifier){
+fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel){
 
-    Login(modifier)
+    Login(modifier, loginViewModel)
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun previewLoginScreen(){
-    Login(Modifier);
-}
 
 @Composable
-fun Login(modifier: Modifier){
+fun Login(modifier: Modifier, loginViewModel: LoginViewModel){
 
-    var correo by rememberSaveable { mutableStateOf("")};
-    var contrasenia by rememberSaveable { mutableStateOf("")};
+    val correo by loginViewModel.correo.observeAsState(initial = "");
+    val contrasenia by loginViewModel.contrasenia.observeAsState(initial = "");
+
     Column(Modifier.fillMaxSize().padding(31.dp)){
 
         Column(horizontalAlignment = Alignment.Start){
@@ -55,7 +52,7 @@ fun Login(modifier: Modifier){
 
         Column() {
             OutlinedTextField(value = correo, onValueChange = {
-                correo = it
+                loginViewModel.setCorreo(it);
             }, placeholder = {Text("Correo")},
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth().height(51.dp)
@@ -64,13 +61,15 @@ fun Login(modifier: Modifier){
             Spacer(Modifier.padding(10.dp))
 
             OutlinedTextField(value = contrasenia, onValueChange = {
-                contrasenia = it
+                loginViewModel.setContrasenia(it);
             }, placeholder = {Text("Contraseña")},
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth().height(51.dp))
 
             Button(onClick = {
-                Log.i("OSCAR", "${correo} ${contrasenia}") },
+                Log.i("OSCAR", "${correo} ${contrasenia}")
+                loginViewModel.login(correo, contrasenia);
+                             },
                 shape = RoundedCornerShape(22.dp),
                 modifier = Modifier.fillMaxWidth()) {
                 Text("Iniciar sesion")
