@@ -1,5 +1,6 @@
 package com.oscar.hydrosense
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.core.DataStore // Correct import for DataStore
+import androidx.datastore.preferences.preferencesDataStore
+import com.oscar.hydrosense.login.ui.Login
 import com.oscar.hydrosense.login.ui.LoginScreen
 import com.oscar.hydrosense.login.ui.LoginViewModel
 import com.oscar.hydrosense.registro.ui.RegisterViewModel
@@ -26,15 +31,14 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     private val loginViewModel: LoginViewModel by viewModels();
     private val registerViewModel: RegisterViewModel by viewModels();
 
+    val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user");
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-
+        super.onCreate(savedInstanceState);
         setContent {
 
             HydroSenseTheme {
@@ -42,7 +46,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold {
                     innerPadding ->
                     Column(Modifier.fillMaxSize().padding(innerPadding)) {
-                        Registro(registerViewModel);
+                        Login(Modifier, loginViewModel);
 
                     }
                 }
@@ -51,3 +55,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+// The DataStore should be a singleton, so it's better to define it at the top level of the file,
+// outside any class, or as a static property in a companion object.
+// This makes it accessible throughout your application and ensures only one instance exists.
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user");
+

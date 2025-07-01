@@ -1,6 +1,6 @@
 package com.oscar.hydrosense.login.data.network.request
 
-data class LoginRequest (var correo: String, var contrasenia: String) {
+data class LoginRequest (var correo: String, var password: String) {
 
 
 }

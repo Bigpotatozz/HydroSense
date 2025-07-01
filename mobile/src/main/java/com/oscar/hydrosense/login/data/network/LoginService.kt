@@ -12,7 +12,6 @@ class LoginService @Inject constructor(private val loginClient: LoginClient) {
 
         return withContext(Dispatchers.IO){
             val response = loginClient.login(loginRequest);
-            Log.i("OSCAR", response.toString());
             response.body();
         }
     };

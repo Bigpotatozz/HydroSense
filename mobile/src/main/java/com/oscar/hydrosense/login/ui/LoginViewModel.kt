@@ -1,5 +1,6 @@
 package com.oscar.hydrosense.login.ui
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,9 +17,14 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
 
     private var _correo = MutableLiveData<String>();
     private var _contrasenia = MutableLiveData<String>();
+    private var _login = MutableLiveData<Boolean>();
+    private var _response = MutableLiveData<LoginResponse?>();
+
 
     var correo: LiveData<String> = _correo;
     var contrasenia: LiveData<String> = _contrasenia;
+    var loginStatus: LiveData<Boolean> = _login;
+    var response: LiveData<LoginResponse?> = _response;
 
     fun setCorreo (correo: String){
         _correo.value = correo;
@@ -27,14 +33,22 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
         _contrasenia.value = contrasenia;
     }
 
-    private var _response = MutableLiveData<LoginResponse>();
-    var response: LiveData<LoginResponse> = _response;
+
+
 
     fun login(correo: String, contrasenia: String){
         val loginRequest = LoginRequest(correo, contrasenia);
 
         viewModelScope.launch {
-           _response.value = loginUseCase.invoke(loginRequest);
+           val response = loginUseCase.invoke(loginRequest);
+
+            if(response !=  null){
+                _login.value = true
+            }else {
+                _login.value = false
+            }
+            _response.value = response;
+
         }
     }
 }

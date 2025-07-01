@@ -1,5 +1,6 @@
 package com.oscar.hydrosense.login.ui
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -21,12 +23,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import com.google.gson.Gson
+import com.oscar.hydrosense.login.data.network.response.LoginResponse
+import dagger.hilt.android.internal.Contexts
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "usuario");
 
 @Composable
 fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel){
@@ -41,7 +55,22 @@ fun Login(modifier: Modifier, loginViewModel: LoginViewModel){
 
     val correo by loginViewModel.correo.observeAsState(initial = "");
     val contrasenia by loginViewModel.contrasenia.observeAsState(initial = "");
-    val response by loginViewModel.response.observeAsState(initial = "");
+    val loginStatus by loginViewModel.loginStatus.observeAsState(initial = false);
+    val response by loginViewModel.response.observeAsState();
+
+    val context = LocalContext.current;
+
+    LaunchedEffect(loginStatus) {
+        if(loginStatus){
+            Log.i("OSCAR", "todo bien");
+            Log.i("OSCAR", "${response?.nombre}");
+            val json = Gson().toJson(response);
+            val key = stringPreferencesKey("login_response");
+            context.dataStore.edit { prefs -> prefs[key] = json };
+        }else{
+            Log.i("OSCAR", "todo mal")
+        }
+    }
 
     Column(Modifier.fillMaxSize().padding(31.dp)){
 
@@ -68,8 +97,8 @@ fun Login(modifier: Modifier, loginViewModel: LoginViewModel){
                 modifier = Modifier.fillMaxWidth().height(51.dp))
 
             Button(onClick = {
-                Log.i("OSCAR", "${correo} ${contrasenia}")
-                loginViewModel.login(correo, contrasenia);},
+                loginViewModel.login(correo, contrasenia);
+               },
                 shape = RoundedCornerShape(22.dp),
                 modifier = Modifier.fillMaxWidth()) {
                 Text("Iniciar sesion")
@@ -78,7 +107,5 @@ fun Login(modifier: Modifier, loginViewModel: LoginViewModel){
             Spacer(Modifier.padding(15.dp))
 
         }
-
-
     }
 };
