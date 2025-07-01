@@ -2,14 +2,18 @@ package com.oscar.hydrosense
 
 import android.content.Context
 import android.os.Bundle
+import android.view.Window
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,14 +51,11 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             HydroSenseTheme {
-
-                Scaffold {
-                    innerPadding ->
-                    Column(Modifier.fillMaxSize().padding(innerPadding)) {
+                    Column(Modifier.fillMaxSize().padding(WindowInsets.systemBars.asPaddingValues())) {
                         AppNavigation();
 
                     }
-                }
+
 
             }
         }
