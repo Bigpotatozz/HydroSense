@@ -23,17 +23,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavController
 
 
 @Composable
-fun RegistroScreen(modifier: Modifier, registerViewModel: RegisterViewModel){
+fun RegistroScreen(modifier: Modifier, registerViewModel: RegisterViewModel, navController: NavController){
 
-    Registro(registerViewModel);
+    Registro(registerViewModel, navController);
 }
 
 
 @Composable
-fun Registro(registerViewModel: RegisterViewModel){
+fun Registro(registerViewModel: RegisterViewModel, navController: NavController){
 
     val nombre by registerViewModel.nombre.observeAsState(initial = "");
     val correo by registerViewModel.correo.observeAsState(initial = "");

@@ -1,9 +1,11 @@
 package com.oscar.hydrosense.registro.ui
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.oscar.hydrosense.login.ui.Login
 import com.oscar.hydrosense.registro.data.network.request.RegisterRequest
 import com.oscar.hydrosense.registro.domain.RegisterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -66,7 +68,16 @@ class RegisterViewModel @Inject constructor(private val registerUseCase: Registe
 
     fun registrarUsuario(nombre: String, correo: String, contrasenia: String, telefono: String, edad: String, pais: String, apellido_paterno: String, apellido_materno: String){
 
-        val usuario = RegisterRequest(nombre, apellido_paterno, apellido_materno, telefono, edad.toInt(), pais, correo, contrasenia);
+        var edadInt = edad.toIntOrNull();
+
+        if(edadInt == null){
+
+            edadInt = 0;
+        };
+
+
+        val usuario = RegisterRequest( nombre, apellido_paterno, apellido_materno, edadInt, pais, correo, contrasenia, telefono);
+        Log.i("OSCAR", "${usuario}");
 
         viewModelScope.launch {
             registerUseCase.invoke(usuario);

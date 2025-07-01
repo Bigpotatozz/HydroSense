@@ -34,6 +34,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.oscar.hydrosense.login.data.network.response.LoginResponse
 import dagger.hilt.android.internal.Contexts
@@ -43,15 +44,15 @@ import kotlinx.coroutines.runBlocking
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "usuario");
 
 @Composable
-fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel){
+fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, navController: NavController){
 
-    Login(modifier, loginViewModel)
+    Login(modifier, loginViewModel, navController)
 }
 
 
 
 @Composable
-fun Login(modifier: Modifier, loginViewModel: LoginViewModel){
+fun Login(modifier: Modifier, loginViewModel: LoginViewModel, navController: NavController){
 
     val correo by loginViewModel.correo.observeAsState(initial = "");
     val contrasenia by loginViewModel.contrasenia.observeAsState(initial = "");
@@ -67,6 +68,9 @@ fun Login(modifier: Modifier, loginViewModel: LoginViewModel){
             val json = Gson().toJson(response);
             val key = stringPreferencesKey("login_response");
             context.dataStore.edit { prefs -> prefs[key] = json };
+
+            navController.navigate("home")
+
         }else{
             Log.i("OSCAR", "todo mal")
         }
@@ -106,6 +110,16 @@ fun Login(modifier: Modifier, loginViewModel: LoginViewModel){
 
             Spacer(Modifier.padding(15.dp))
 
+            Button(onClick = {
+
+                navController.navigate("register");
+            }) {
+                Text("Registrarse")
+            }
+
         }
     }
+
+
+
 };

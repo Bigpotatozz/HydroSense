@@ -20,11 +20,16 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.core.DataStore // Correct import for DataStore
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.oscar.hydrosense.login.ui.HomeScreen
 import com.oscar.hydrosense.login.ui.Login
 import com.oscar.hydrosense.login.ui.LoginScreen
 import com.oscar.hydrosense.login.ui.LoginViewModel
 import com.oscar.hydrosense.registro.ui.RegisterViewModel
 import com.oscar.hydrosense.registro.ui.Registro
+import com.oscar.hydrosense.registro.ui.RegistroScreen
 import com.oscar.hydrosense.theme.HydroSenseTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -46,7 +51,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold {
                     innerPadding ->
                     Column(Modifier.fillMaxSize().padding(innerPadding)) {
-                        Login(Modifier, loginViewModel);
+                        AppNavigation();
 
                     }
                 }
@@ -54,10 +59,31 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+
+    @Composable
+    fun AppNavigation(){
+        val navController = rememberNavController()
+
+        NavHost(navController = navController, startDestination = "login"){
+            composable("login") {
+                Login(modifier = Modifier, loginViewModel = loginViewModel, navController = navController)
+            }
+
+            composable("home") {
+                HomeScreen(navController);
+            }
+
+            composable("register") {
+                RegistroScreen(modifier = Modifier, registerViewModel = registerViewModel, navController)
+            }
+        }
+    }
+
+
 }
 
-// The DataStore should be a singleton, so it's better to define it at the top level of the file,
-// outside any class, or as a static property in a companion object.
-// This makes it accessible throughout your application and ensures only one instance exists.
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user");
+
+
+
 
