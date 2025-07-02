@@ -12,12 +12,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,6 +43,7 @@ import com.google.gson.Gson
 import com.oscar.hydrosense.login.data.network.response.LoginResponse
 import dagger.hilt.android.internal.Contexts
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "usuario");
@@ -60,7 +65,8 @@ fun Login(modifier: Modifier, loginViewModel: LoginViewModel, navController: Nav
     val response by loginViewModel.response.observeAsState();
 
     val context = LocalContext.current;
-
+    val snackbarHostState = remember { SnackbarHostState() };
+    val coroutineScope = rememberCoroutineScope();
     LaunchedEffect(loginStatus) {
         if(loginStatus){
             Log.i("OSCAR", "todo bien");
@@ -73,6 +79,9 @@ fun Login(modifier: Modifier, loginViewModel: LoginViewModel, navController: Nav
 
         }else{
             Log.i("OSCAR", "todo mal")
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar("Error al registrar")
+            }
         }
     }
 
@@ -116,6 +125,13 @@ fun Login(modifier: Modifier, loginViewModel: LoginViewModel, navController: Nav
             }) {
                 Text("Registrarse")
             }
+
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(16.dp)
+            )
 
         }
     }
