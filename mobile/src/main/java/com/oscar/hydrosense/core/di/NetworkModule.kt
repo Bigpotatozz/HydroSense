@@ -1,5 +1,6 @@
 package com.oscar.hydrosense.core.di
 
+import com.oscar.hydrosense.account.data.network.AccountClient
 import com.oscar.hydrosense.login.data.network.LoginClient
 import com.oscar.hydrosense.registro.data.network.RegisterClient
 import dagger.Module
@@ -35,5 +36,12 @@ class NetworkModule {
     @Provides
     fun provideRegisterClient(retrofit: Retrofit): RegisterClient{
         return retrofit.create(RegisterClient::class.java)
+    }
+
+
+    @Singleton
+    @Provides
+    fun provideAccountClient(retrofit: Retrofit): AccountClient{
+        return retrofit.create(AccountClient::class.java)
     }
 }
