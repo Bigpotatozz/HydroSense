@@ -122,6 +122,12 @@ fun Login(modifier: Modifier, loginViewModel: LoginViewModel, navController: Nav
             Button(onClick = {
 
                 navController.navigate("register");
+
+                if(loginStatus == false){
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar("Usuario o contraseña incorrectos");
+                    }
+                }
             }) {
                 Text("Registrarse")
             }

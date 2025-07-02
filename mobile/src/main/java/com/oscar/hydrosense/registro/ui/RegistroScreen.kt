@@ -59,6 +59,14 @@ fun Registro(registerViewModel: RegisterViewModel, navController: NavController)
 
 
     Column(Modifier.fillMaxSize().padding(31.dp)) {
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(16.dp)
+        )
+
         Text("REGISTRO")
 
         Spacer(Modifier.padding(49.dp))
@@ -165,11 +173,6 @@ fun Registro(registerViewModel: RegisterViewModel, navController: NavController)
             Text("Registrarse")
         }
 
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(16.dp)
-        )
+
     }
 }
