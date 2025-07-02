@@ -12,6 +12,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -32,6 +35,7 @@ import com.google.gson.Gson
 import com.oscar.hydrosense.login.data.network.response.LoginResponse
 import com.oscar.hydrosense.login.ui.dataStore
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 @Composable
 fun AccountScreen(modifier: Modifier, navController: NavController, accountViewModel: AccountViewModel) {
@@ -42,8 +46,11 @@ fun AccountScreen(modifier: Modifier, navController: NavController, accountViewM
 @Composable
 fun Account(accountViewModel: AccountViewModel, navController: NavController){
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() };
+    val coroutineScope = rememberCoroutineScope();
     Column(Modifier.fillMaxSize()) {
 
+        var usuario2 by remember { mutableStateOf<LoginResponse?>(null); };
 
         val nombre by accountViewModel.nombre.observeAsState(initial = "");
         val correo by accountViewModel.correo.observeAsState(initial = "");
@@ -56,12 +63,20 @@ fun Account(accountViewModel: AccountViewModel, navController: NavController){
 
         var contrasenia2 by rememberSaveable { mutableStateOf("") };
         var samePassword by rememberSaveable { mutableStateOf(false) };
-        var usuario2 by remember { mutableStateOf<LoginResponse?>(null); };
+
 
         LaunchedEffect(Unit) {
             val prefs = context.dataStore.data.first();
             val json = prefs[stringPreferencesKey("login_response")];
             usuario2 = Gson().fromJson(json, LoginResponse::class.java)
+
+            accountViewModel.setNombre(usuario2?.nombre ?: "")
+            accountViewModel.setCorreo(usuario2?.correo ?: "")
+            accountViewModel.setTelefono(usuario2?.telefono ?: "")
+            accountViewModel.setEdad(usuario2?.edad.toString())
+            accountViewModel.setPais(usuario2?.pais ?: "")
+            accountViewModel.setApellido_paterno(usuario2?.apellido_paterno ?: "")
+            accountViewModel.setApellido_materno(usuario2?.apellido_materno ?: "")
 
         }
 
@@ -147,6 +162,10 @@ fun Account(accountViewModel: AccountViewModel, navController: NavController){
                 if(samePassword == true){
                     Log.i("OSCAR", "${correo} ${contrasenia}")
                     accountViewModel.editarUsuario(usuario2?.idUsuario ?: 0,nombre,correo,contrasenia,telefono,edad,pais,apellido_paterno,apellido_materno);
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar("Usuario editado con exito")
+                    }
+
                 }else{
                     Log.i("OSCAR", "contraseña no coincidente")
                 }
@@ -156,6 +175,14 @@ fun Account(accountViewModel: AccountViewModel, navController: NavController){
                 modifier = Modifier.fillMaxWidth()) {
                 Text("Editar informacion")
             }
+
+
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(16.dp)
+            )
         }
 
     }
