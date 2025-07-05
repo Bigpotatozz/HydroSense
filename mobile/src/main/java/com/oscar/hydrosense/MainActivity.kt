@@ -24,6 +24,7 @@ import com.oscar.hydrosense.account.ui.AccountScreen
 import com.oscar.hydrosense.account.ui.AccountViewModel
 import com.oscar.hydrosense.home.ui.HomeScreen
 import com.oscar.hydrosense.login.ui.Login
+import com.oscar.hydrosense.login.ui.LoginScreen
 import com.oscar.hydrosense.login.ui.LoginViewModel
 import com.oscar.hydrosense.registro.ui.RegisterViewModel
 import com.oscar.hydrosense.registro.ui.RegistroScreen
@@ -61,7 +62,7 @@ class MainActivity : ComponentActivity() {
 
         NavHost(navController = navController, startDestination = "login"){
             composable("Login") {
-                Login(modifier = Modifier, loginViewModel = loginViewModel, navController = navController)
+                LoginScreen(modifier = Modifier, loginViewModel = loginViewModel, navController = navController)
             }
 
             composable("Home") {
