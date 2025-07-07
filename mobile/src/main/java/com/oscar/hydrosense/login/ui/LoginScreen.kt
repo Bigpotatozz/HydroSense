@@ -126,7 +126,8 @@ fun Login(modifier:Modifier, loginViewModel: LoginViewModel, navController: NavC
 
         Column() {
 
-            PersonalizedTextField(value = correo,
+            PersonalizedTextField(modifier = Modifier,
+                value = correo,
                 icono = Icons.Filled.AlternateEmail,
                 placeholder = "Correo") {
                 loginViewModel.setCorreo(it);
@@ -134,7 +135,8 @@ fun Login(modifier:Modifier, loginViewModel: LoginViewModel, navController: NavC
 
             Spacer(Modifier.padding(10.dp))
 
-            PersonalizedTextField(value = contrasenia,
+            PersonalizedTextField(modifier = Modifier,
+                value = contrasenia,
                 icono = Icons.Outlined.Visibility,
                 placeholder = "Contraseña") {
                 loginViewModel.setContrasenia(it);

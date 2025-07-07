@@ -11,9 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AlternateEmail
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,15 +39,22 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.oscar.hydrosense.login.data.network.response.LoginResponse
 import com.oscar.hydrosense.login.ui.dataStore
+import com.oscar.hydrosense.theme.funnelSans
+import com.oscar.hydrosense.ui.PersonalizedDropdownField
 import com.oscar.hydrosense.ui.PersonalizedNumberField
 import com.oscar.hydrosense.ui.PersonalizedTextField
 import com.oscar.hydrosense.utils.paises
@@ -113,108 +124,118 @@ fun Account(){
 
 
         Column(Modifier.fillMaxSize().padding(31.dp)) {
-            Text("ACTUALIZAR INFORMACION")
+            Text(text = "Mi perfil",
+                style = TextStyle(fontFamily = funnelSans, fontSize = 32.sp, fontWeight = FontWeight.SemiBold))
 
-            Spacer(Modifier.padding(49.dp))
+            Text(text = "Visualiza y edita tu informacion",
+                style = TextStyle(fontFamily = funnelSans, fontSize = 15.sp, fontWeight = FontWeight.Light))
 
 
-            PersonalizedTextField("Nombre", Icons.Filled.Person, "Nombre") {
+            Spacer(Modifier.padding(30.dp))
+
+
+            PersonalizedTextField(modifier = Modifier, "Nombre", Icons.Filled.Person, "Nombre") {
                 //accountViewModel.setNombre(it)
             }
+            Spacer(Modifier.padding(5.dp))
 
-            PersonalizedTextField("Apellido paterno", Icons.Filled.Person, "Apellido paterno") {
-                //accountViewModel.setApellido_paterno(it)
-            }
-            PersonalizedTextField("Apellido materno", Icons.Filled.Person, "Apellido materno") {
-                //accountViewModel.setApellido_materno(it)
+            PersonalizedTextField(modifier = Modifier,
+                    "Apellido paterno",
+                    Icons.Filled.Person,
+                    "Apellido paterno") {
+                    //accountViewModel.setApellido_paterno(it)
             }
 
-            PersonalizedTextField("Telefono", Icons.Filled.Phone, "telefono") {
+            Spacer(Modifier.padding(5.dp))
+
+            PersonalizedTextField(modifier = Modifier,
+                    "Apellido materno",
+                    Icons.Filled.Person, "Apellido materno") {
+                    //accountViewModel.setApellido_materno(it)
+            }
+
+            Spacer(Modifier.padding(5.dp))
+
+            PersonalizedTextField(modifier = Modifier,"Telefono", Icons.Filled.Phone, "telefono") {
                 //accountViewModel.setTelefono(it)
             }
 
-            PersonalizedNumberField("Edad", Icons.Filled.Person, "Edad") {
-                //accountViewModel.setEdad(it)
-            }
+            Spacer(Modifier.padding(5.dp))
 
+            Row {
+                PersonalizedNumberField(modifier = Modifier.weight(0.5f), "Edad", Icons.Filled.Person, "Edad") {
+                    //accountViewModel.setEdad(it)
+                }
 
+                Spacer(Modifier.padding(5.dp))
 
-            Box(Modifier.fillMaxWidth().zIndex(1f)){
-                ExposedDropdownMenuBox(expanded = expandedDropdown,
-                    onExpandedChange = {
-                        Log.i("OSCAR", "${expandedDropdown}")
-                        expandedDropdown = !expandedDropdown}) {
+                Box(Modifier.fillMaxWidth().zIndex(1f).weight(0.5f)){
+                    ExposedDropdownMenuBox(expanded = expandedDropdown,
+                        onExpandedChange = {
+                            Log.i("OSCAR", "${expandedDropdown}")
+                            expandedDropdown = !expandedDropdown},
+                    ) {
 
-                    OutlinedTextField( value = paisSeleccionado,
-                        onValueChange = {},
-                        readOnly = true,
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expandedDropdown)
-                        },
-                        modifier = Modifier
-                            .menuAnchor()
-                            .fillMaxWidth());
-
-                    ExposedDropdownMenu(expanded = expandedDropdown,
-                        onDismissRequest = {expandedDropdown = false},
-                        modifier = Modifier.height(200.dp)) {
-                        paises.forEach {
-                            DropdownMenuItem(text = {Text(it)}, onClick = {
-                                paisSeleccionado = it;
-                                expandedDropdown = false;
-                                Log.i("OSCAR", "${it}")
-                            })
+                        PersonalizedDropdownField(modifier = Modifier.menuAnchor().fillMaxWidth(),
+                            icono = Icons.Filled.Flag,
+                            value = paisSeleccionado,
+                            placeholder = "Pais",
+                            trailingIcon = expandedDropdown) {}
+                        ExposedDropdownMenu(expanded = expandedDropdown,
+                            onDismissRequest = {expandedDropdown = false},
+                            modifier = Modifier.height(200.dp)) {
+                            paises.forEach {
+                                DropdownMenuItem(text = {Text(it)}, onClick = {
+                                    paisSeleccionado = it;
+                                    expandedDropdown = false;
+                                    Log.i("OSCAR", "${it}")
+                                })
+                            }
                         }
                     }
-                }
 
+
+                }
 
             }
 
+            Spacer(Modifier.padding(5.dp))
 
 
-            Spacer(Modifier.padding(49.dp));
 
-
-            OutlinedTextField(value = "Pais" /*pais*/
-                , onValueChange = {
-                    //accountViewModel.setPais(it)
-                }, placeholder = {Text("Pais")},
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth().height(51.dp)
-            )
-
-            OutlinedTextField(value = "Correo"/*correo*/, onValueChange = {
+            PersonalizedTextField(modifier = Modifier,value = "Correo",
+                icono = Icons.Filled.AlternateEmail,
+                placeholder = "Correo") {
                 //accountViewModel.setCorreo(it)
-            }, placeholder = {Text("Correo")},
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth().height(51.dp)
-            )
+            }
 
-            OutlinedTextField(value = "Contraseña"/*contrasenia*/, onValueChange = {
-                //accountViewModel.setContrasenia(it)
-            }, placeholder = {Text("Contrasenia")},
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth().height(51.dp)
-            )
+            Spacer(Modifier.padding(5.dp))
 
-            OutlinedTextField(value = "Confirmar contraseña"/*contrasenia2*/, onValueChange = {
+            PersonalizedTextField(modifier = Modifier,value = "contraseña",
+                icono = Icons.Filled.Visibility,
+                placeholder = "Contraseña") {
+                //accountViewModel.setContrasenia(it
+            }
+
+            Spacer(Modifier.padding(5.dp))
+
+            PersonalizedTextField(modifier = Modifier,value = "Confirmar Contraseña",
+                icono = Icons.Filled.Visibility,
+                placeholder = "Confirmar contraseña") {
 
                 /*
-                contrasenia2 = it
+               contrasenia2 = it
 
-                if(contrasenia2 == contrasenia){
-                    samePassword = true
-                }else{
-                    samePassword = false
-                }
-                */
-            }, placeholder = {Text("Confirmar contrasenia")},
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth().height(51.dp)
-            )
+               if(contrasenia2 == contrasenia){
+                   samePassword = true
+               }else{
+                   samePassword = false
+               }
+               */
+            }
 
 
+            Spacer(Modifier.padding(5.dp))
 
             Button(onClick = {
                 /*
@@ -230,9 +251,11 @@ fun Account(){
                 }
                 */
             },
-                shape = RoundedCornerShape(22.dp),
-                modifier = Modifier.fillMaxWidth()) {
-                Text("Editar informacion")
+                modifier = Modifier.fillMaxWidth().height(47.dp),
+                colors = ButtonDefaults.buttonColors( containerColor = Color(0xFF1A2130))) {
+                Text("Editar informacion",
+                    color = Color(0xFFFDFFE2),
+                    style = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Bold))
             }
 
 
