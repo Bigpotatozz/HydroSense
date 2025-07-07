@@ -1,6 +1,7 @@
 package com.oscar.hydrosense.account.ui
 
 import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +15,8 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -35,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.navigation.NavController
 import com.google.gson.Gson
@@ -42,11 +46,12 @@ import com.oscar.hydrosense.login.data.network.response.LoginResponse
 import com.oscar.hydrosense.login.ui.dataStore
 import com.oscar.hydrosense.ui.PersonalizedNumberField
 import com.oscar.hydrosense.ui.PersonalizedTextField
+import com.oscar.hydrosense.utils.paises
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @Composable
-fun AccountScreen(modifier: Modifier, navController: NavController, accountViewModel: AccountViewModel) {
+fun AccountScreen() {
     Account();
 }
 
@@ -58,6 +63,7 @@ fun PreviewAccountScreen() {
 
 
 //accountViewModel: AccountViewModel, navController: NavController
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Account(){
 
@@ -104,6 +110,8 @@ fun Account(){
 
         var expandedDropdown by remember { mutableStateOf(false) };
         var paisSeleccionado by rememberSaveable { mutableStateOf("") }
+
+
         Column(Modifier.fillMaxSize().padding(31.dp)) {
             Text("ACTUALIZAR INFORMACION")
 
@@ -128,6 +136,44 @@ fun Account(){
             PersonalizedNumberField("Edad", Icons.Filled.Person, "Edad") {
                 //accountViewModel.setEdad(it)
             }
+
+
+
+            Box(Modifier.fillMaxWidth().zIndex(1f)){
+                ExposedDropdownMenuBox(expanded = expandedDropdown,
+                    onExpandedChange = {
+                        Log.i("OSCAR", "${expandedDropdown}")
+                        expandedDropdown = !expandedDropdown}) {
+
+                    OutlinedTextField( value = paisSeleccionado,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expandedDropdown)
+                        },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth());
+
+                    ExposedDropdownMenu(expanded = expandedDropdown,
+                        onDismissRequest = {expandedDropdown = false},
+                        modifier = Modifier.height(200.dp)) {
+                        paises.forEach {
+                            DropdownMenuItem(text = {Text(it)}, onClick = {
+                                paisSeleccionado = it;
+                                expandedDropdown = false;
+                                Log.i("OSCAR", "${it}")
+                            })
+                        }
+                    }
+                }
+
+
+            }
+
+
+
+            Spacer(Modifier.padding(49.dp));
 
 
             OutlinedTextField(value = "Pais" /*pais*/
