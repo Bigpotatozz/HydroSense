@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -48,6 +49,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,6 +61,8 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.oscar.hydrosense.login.data.network.response.LoginResponse
+import com.oscar.hydrosense.theme.funnelSans
+import com.oscar.hydrosense.ui.PersonalizedTextField
 import dagger.hilt.android.internal.Contexts
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -69,33 +73,22 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "us
 
 @Composable
 fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, navController: NavController){
-
-    Login()
+    Login(modifier, loginViewModel, navController);
 }
 
 
-@Preview(showBackground = true)
 @Composable
-fun PreviewLogin(){
-
-
-
-    Login();
-}
-
-@Composable
-fun Login(/*modifier:Modifier, loginViewModel: LoginViewModel, navController: NavController*/){
-
-    /*val correo by loginViewModel.correo.observeAsState(initial = "");
+fun Login(modifier:Modifier, loginViewModel: LoginViewModel, navController: NavController){
+    val correo by loginViewModel.correo.observeAsState(initial = "");
     val contrasenia by loginViewModel.contrasenia.observeAsState(initial = "");
     val loginStatus by loginViewModel.loginStatus.observeAsState(initial = false);
-    val response by loginViewModel.response.observeAsState();*/
+    val response by loginViewModel.response.observeAsState();
 
     val context = LocalContext.current;
     val snackbarHostState = remember { SnackbarHostState() };
     val coroutineScope = rememberCoroutineScope();
 
-    /*
+
     LaunchedEffect(loginStatus) {
         if(loginStatus){
             Log.i("OSCAR", "todo bien");
@@ -113,41 +106,46 @@ fun Login(/*modifier:Modifier, loginViewModel: LoginViewModel, navController: Na
             }
         }
     }
-     */
+
 
     Column(Modifier.fillMaxSize().padding(31.dp)){
+        Spacer(modifier = Modifier.padding(30.dp))
 
         Column(horizontalAlignment = Alignment.Start){
-            Text(text = "Hola!", style = TextStyle(fontSize = 32.sp));
-            Text(text = "Bienvenido de vuelta", style = TextStyle(fontSize = 15.sp))
+            Text(text = "Hola!",
+                style = TextStyle(fontSize = 32.sp, fontFamily = funnelSans, fontWeight = FontWeight.SemiBold),
+                color = Color(0xFF1A2130));
+            Text(text = "Bienvenido de vuelta",
+                style = TextStyle(fontSize = 15.sp, fontFamily = funnelSans, fontWeight = FontWeight.Light),
+                color = Color(0xFF1A2130))
         }
-        Spacer(Modifier.padding(49.dp))
+        Spacer(Modifier.padding(30.dp))
 
 
 
 
         Column() {
 
-            PersonalizedTextField(value = ""/*correo*/,
+            PersonalizedTextField(value = correo,
                 icono = Icons.Filled.AlternateEmail,
                 placeholder = "Correo") {
-                //loginViewModel.setCorreo(it);
+                loginViewModel.setCorreo(it);
             }
 
             Spacer(Modifier.padding(10.dp))
 
-            PersonalizedTextField(value = ""/*contrasenia*/,
+            PersonalizedTextField(value = contrasenia,
                 icono = Icons.Outlined.Visibility,
                 placeholder = "Contraseña") {
-                //loginViewModel.setContrasenia(it);
+                loginViewModel.setContrasenia(it);
             }
             Spacer(Modifier.padding(10.dp))
 
             Button(onClick = {
-                //loginViewModel.login(correo, contrasenia);
+                loginViewModel.login(correo, contrasenia);
                },
                 shape = RoundedCornerShape(22.dp),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().height(47.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF83B4FF),
                     contentColor = Color(0xFF1A2130)
@@ -158,31 +156,57 @@ fun Login(/*modifier:Modifier, loginViewModel: LoginViewModel, navController: Na
             Spacer(Modifier.padding(15.dp))
 
             Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+
+                HorizontalDivider(Modifier.padding(2.dp).weight(1f),
+                    color = Color.Black,
+                    thickness = 1.dp)
+                Text("or", Modifier.padding(5.dp),
+                    style = TextStyle(fontFamily = funnelSans, fontWeight = FontWeight.Bold))
                 HorizontalDivider(Modifier.padding(2.dp).weight(1f), color = Color.Black)
-                Text("or", Modifier.padding(5.dp))
-                HorizontalDivider(Modifier.padding(2.dp).weight(1f), color = Color.Black)
+
             }
 
             Spacer(Modifier.padding(15.dp))
 
             Button(onClick = {
 
-                //navController.navigate("register");
-                /*
+                navController.navigate("register");
+
                 if(loginStatus == false){
                     coroutineScope.launch {
                         snackbarHostState.showSnackbar("Usuario o contraseña incorrectos");
                     }
                 }
 
-                */
+
             },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().height(47.dp),
                 colors = ButtonDefaults.buttonColors( containerColor = Color(0xFF1A2130))) {
-                Text("Registrarse", color = Color(0xFFFDFFE2))
+                Text("Registrarse",
+                    color = Color(0xFFFDFFE2),
+                    style = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Bold))
             }
 
-            Text("Olvidaste tu contraseña?");
+            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Olvidaste tu contraseña?",
+                    modifier = Modifier.padding(top = 20.dp),
+                    style = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Bold, fontFamily = funnelSans),
+                    color = Color(0xFF1A2130));
+
+
+                    Text("Al registrarte, consientes el tratamiento de tus datos conforme a nuestro Aviso de Privacidad.",
+                        modifier = Modifier.padding(40.dp),
+                        style = TextStyle(fontSize = 10.sp, fontFamily = funnelSans, fontWeight = FontWeight.ExtraLight),
+                        textAlign = TextAlign.Center,
+                        color = Color(0xFF1A2130))
+
+
+
+            }
+
+
+
+
 
             SnackbarHost(
                 hostState = snackbarHostState,
@@ -198,26 +222,3 @@ fun Login(/*modifier:Modifier, loginViewModel: LoginViewModel, navController: Na
 
 };
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PersonalizedTextField(value: String, icono: ImageVector, placeholder: String, onValueChange: (String) -> Unit){
-
-    OutlinedTextField(value = value, onValueChange = onValueChange , placeholder = {
-        Row(verticalAlignment = Alignment.CenterVertically){
-
-            Text(text = placeholder,
-                style = TextStyle( fontSize = 15.sp))
-        } },
-        shape = RoundedCornerShape(10.dp),
-        modifier = Modifier.fillMaxWidth().height(51.dp),
-        leadingIcon = {
-            Icon(imageVector = icono,
-            contentDescription = placeholder)},
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            focusedBorderColor = Color(0xFF1A2130),
-            unfocusedBorderColor = Color.Black,
-            errorBorderColor = Color.Red
-        )
-    )
-}

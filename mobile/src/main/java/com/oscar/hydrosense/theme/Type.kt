@@ -11,6 +11,13 @@ import com.oscar.hydrosense.R
 
 // Set of Material typography styles to start with
 
+val funnelSans = FontFamily(
+    Font(R.font.funnelsans_bold, FontWeight.Bold),
+    Font(R.font.funnelsans_regular, FontWeight.Normal),
+    Font(R.font.funnelsans_semibold, FontWeight.SemiBold),
+    Font(R.font.funnelsans_medium, FontWeight.Medium),
+    Font(R.font.funnelsans_light, FontWeight.Light)
+);
 
 val Typography = Typography(
     bodyLarge = TextStyle(

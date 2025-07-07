@@ -9,12 +9,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,22 +40,35 @@ import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.oscar.hydrosense.login.data.network.response.LoginResponse
 import com.oscar.hydrosense.login.ui.dataStore
+import com.oscar.hydrosense.ui.PersonalizedNumberField
+import com.oscar.hydrosense.ui.PersonalizedTextField
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @Composable
 fun AccountScreen(modifier: Modifier, navController: NavController, accountViewModel: AccountViewModel) {
-    Account(accountViewModel = accountViewModel, navController = navController);
+    Account();
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewAccountScreen() {
+    Account();
 }
 
 
+//accountViewModel: AccountViewModel, navController: NavController
 @Composable
-fun Account(accountViewModel: AccountViewModel, navController: NavController){
+fun Account(){
+
+    /*
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() };
     val coroutineScope = rememberCoroutineScope();
-    Column(Modifier.fillMaxSize()) {
+    */
 
+    Column(Modifier.fillMaxSize()) {
+    /*
         var usuario2 by remember { mutableStateOf<LoginResponse?>(null); };
 
         val nombre by accountViewModel.nombre.observeAsState(initial = "");
@@ -63,6 +82,8 @@ fun Account(accountViewModel: AccountViewModel, navController: NavController){
 
         var contrasenia2 by rememberSaveable { mutableStateOf("") };
         var samePassword by rememberSaveable { mutableStateOf(false) };
+
+
 
 
         LaunchedEffect(Unit) {
@@ -79,71 +100,61 @@ fun Account(accountViewModel: AccountViewModel, navController: NavController){
             accountViewModel.setApellido_materno(usuario2?.apellido_materno ?: "")
 
         }
+  */
 
+        var expandedDropdown by remember { mutableStateOf(false) };
+        var paisSeleccionado by rememberSaveable { mutableStateOf("") }
         Column(Modifier.fillMaxSize().padding(31.dp)) {
             Text("ACTUALIZAR INFORMACION")
 
             Spacer(Modifier.padding(49.dp))
 
-            OutlinedTextField(value = nombre, onValueChange = {
-                accountViewModel.setNombre(it)
-            }, placeholder = {Text("Nombre")},
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth().height(51.dp)
-            )
 
-            OutlinedTextField(value = apellido_paterno, onValueChange = {
-                accountViewModel.setApellido_paterno(it)
-            }, placeholder = {Text("Apellido paterno")},
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth().height(51.dp)
-            )
+            PersonalizedTextField("Nombre", Icons.Filled.Person, "Nombre") {
+                //accountViewModel.setNombre(it)
+            }
 
-            OutlinedTextField(value = apellido_materno, onValueChange = {
-                accountViewModel.setApellido_materno(it)
-            }, placeholder = {Text("Apellido paterno")},
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth().height(51.dp)
-            )
+            PersonalizedTextField("Apellido paterno", Icons.Filled.Person, "Apellido paterno") {
+                //accountViewModel.setApellido_paterno(it)
+            }
+            PersonalizedTextField("Apellido materno", Icons.Filled.Person, "Apellido materno") {
+                //accountViewModel.setApellido_materno(it)
+            }
 
-            OutlinedTextField(value = telefono, onValueChange = {
-                accountViewModel.setTelefono(it)
-            }, placeholder = {Text("Telefono")},
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth().height(51.dp)
-            )
+            PersonalizedTextField("Telefono", Icons.Filled.Phone, "telefono") {
+                //accountViewModel.setTelefono(it)
+            }
 
-            OutlinedTextField(value = edad, onValueChange = {
-                accountViewModel.setEdad(it)
-            }, placeholder = {Text("Edad")},
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth().height(51.dp)
-            )
+            PersonalizedNumberField("Edad", Icons.Filled.Person, "Edad") {
+                //accountViewModel.setEdad(it)
+            }
 
-            OutlinedTextField(value = pais
+
+            OutlinedTextField(value = "Pais" /*pais*/
                 , onValueChange = {
-                    accountViewModel.setPais(it)
+                    //accountViewModel.setPais(it)
                 }, placeholder = {Text("Pais")},
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth().height(51.dp)
             )
 
-            OutlinedTextField(value = correo, onValueChange = {
-                accountViewModel.setCorreo(it)
+            OutlinedTextField(value = "Correo"/*correo*/, onValueChange = {
+                //accountViewModel.setCorreo(it)
             }, placeholder = {Text("Correo")},
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth().height(51.dp)
             )
 
-            OutlinedTextField(value = contrasenia, onValueChange = {
-                accountViewModel.setContrasenia(it)
+            OutlinedTextField(value = "Contraseña"/*contrasenia*/, onValueChange = {
+                //accountViewModel.setContrasenia(it)
             }, placeholder = {Text("Contrasenia")},
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth().height(51.dp)
             )
 
-            OutlinedTextField(value = contrasenia2, onValueChange = {
+            OutlinedTextField(value = "Confirmar contraseña"/*contrasenia2*/, onValueChange = {
 
+                /*
                 contrasenia2 = it
 
                 if(contrasenia2 == contrasenia){
@@ -151,6 +162,7 @@ fun Account(accountViewModel: AccountViewModel, navController: NavController){
                 }else{
                     samePassword = false
                 }
+                */
             }, placeholder = {Text("Confirmar contrasenia")},
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth().height(51.dp)
@@ -159,6 +171,7 @@ fun Account(accountViewModel: AccountViewModel, navController: NavController){
 
 
             Button(onClick = {
+                /*
                 if(samePassword == true){
                     Log.i("OSCAR", "${correo} ${contrasenia}")
                     accountViewModel.editarUsuario(usuario2?.idUsuario ?: 0,nombre,correo,contrasenia,telefono,edad,pais,apellido_paterno,apellido_materno);
@@ -169,7 +182,7 @@ fun Account(accountViewModel: AccountViewModel, navController: NavController){
                 }else{
                     Log.i("OSCAR", "contraseña no coincidente")
                 }
-
+                */
             },
                 shape = RoundedCornerShape(22.dp),
                 modifier = Modifier.fillMaxWidth()) {
@@ -177,12 +190,15 @@ fun Account(accountViewModel: AccountViewModel, navController: NavController){
             }
 
 
+            /*
             SnackbarHost(
                 hostState = snackbarHostState,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .padding(16.dp)
             )
+            */
+
         }
 
     }
