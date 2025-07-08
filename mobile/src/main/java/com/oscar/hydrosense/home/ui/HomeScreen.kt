@@ -27,8 +27,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.navigation.NavController
 import androidx.navigation.NavHost
 import com.google.gson.Gson
+import com.oscar.hydrosense.login.data.network.dataStore
 import com.oscar.hydrosense.login.data.network.response.LoginResponse
-import com.oscar.hydrosense.login.ui.dataStore
 import kotlinx.coroutines.flow.first
 
 

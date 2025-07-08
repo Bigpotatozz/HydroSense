@@ -51,8 +51,8 @@ import androidx.compose.ui.zIndex
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.navigation.NavController
 import com.google.gson.Gson
+import com.oscar.hydrosense.login.data.network.dataStore
 import com.oscar.hydrosense.login.data.network.response.LoginResponse
-import com.oscar.hydrosense.login.ui.dataStore
 import com.oscar.hydrosense.theme.funnelSans
 import com.oscar.hydrosense.ui.PersonalizedDropdownField
 import com.oscar.hydrosense.ui.PersonalizedNumberField
@@ -62,30 +62,22 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @Composable
-fun AccountScreen() {
-    Account();
+fun AccountScreen( accountViewModel: AccountViewModel, navController: NavController) {
+    Account( accountViewModel, navController);
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewAccountScreen() {
-    Account();
-}
-
-
-//accountViewModel: AccountViewModel, navController: NavController
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Account(){
+fun Account(accountViewModel: AccountViewModel, navController: NavController){
 
-    /*
+
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() };
     val coroutineScope = rememberCoroutineScope();
-    */
+
 
     Column(Modifier.fillMaxSize()) {
-    /*
+
         var usuario2 by remember { mutableStateOf<LoginResponse?>(null); };
 
         val nombre by accountViewModel.nombre.observeAsState(initial = "");
@@ -107,7 +99,6 @@ fun Account(){
             val prefs = context.dataStore.data.first();
             val json = prefs[stringPreferencesKey("login_response")];
             usuario2 = Gson().fromJson(json, LoginResponse::class.java)
-
             accountViewModel.setNombre(usuario2?.nombre ?: "")
             accountViewModel.setCorreo(usuario2?.correo ?: "")
             accountViewModel.setTelefono(usuario2?.telefono ?: "")
@@ -117,10 +108,10 @@ fun Account(){
             accountViewModel.setApellido_materno(usuario2?.apellido_materno ?: "")
 
         }
-  */
+
 
         var expandedDropdown by remember { mutableStateOf(false) };
-        var paisSeleccionado by rememberSaveable { mutableStateOf("") }
+
 
 
         Column(Modifier.fillMaxSize().padding(31.dp)) {
@@ -134,37 +125,32 @@ fun Account(){
             Spacer(Modifier.padding(30.dp))
 
 
-            PersonalizedTextField(modifier = Modifier, "Nombre", Icons.Filled.Person, "Nombre") {
-                //accountViewModel.setNombre(it)
+            PersonalizedTextField(modifier = Modifier, nombre, Icons.Filled.Person, "Nombre") {
+                accountViewModel.setNombre(it)
             }
             Spacer(Modifier.padding(5.dp))
 
-            PersonalizedTextField(modifier = Modifier,
-                    "Apellido paterno",
-                    Icons.Filled.Person,
-                    "Apellido paterno") {
-                    //accountViewModel.setApellido_paterno(it)
+            PersonalizedTextField(modifier = Modifier, apellido_paterno, Icons.Filled.Person, "Apellido paterno") {
+                    accountViewModel.setApellido_paterno(it)
             }
 
             Spacer(Modifier.padding(5.dp))
 
-            PersonalizedTextField(modifier = Modifier,
-                    "Apellido materno",
-                    Icons.Filled.Person, "Apellido materno") {
-                    //accountViewModel.setApellido_materno(it)
+            PersonalizedTextField(modifier = Modifier, apellido_materno, Icons.Filled.Person, "Apellido materno") {
+                    accountViewModel.setApellido_materno(it)
             }
 
             Spacer(Modifier.padding(5.dp))
 
-            PersonalizedTextField(modifier = Modifier,"Telefono", Icons.Filled.Phone, "telefono") {
-                //accountViewModel.setTelefono(it)
+            PersonalizedTextField(modifier = Modifier, telefono, Icons.Filled.Phone, "telefono") {
+                    accountViewModel.setTelefono(it)
             }
 
             Spacer(Modifier.padding(5.dp))
 
             Row {
-                PersonalizedNumberField(modifier = Modifier.weight(0.5f), "Edad", Icons.Filled.Person, "Edad") {
-                    //accountViewModel.setEdad(it)
+                PersonalizedNumberField(modifier = Modifier.weight(0.5f), edad, Icons.Filled.Person, "Edad") {
+                    accountViewModel.setEdad(it)
                 }
 
                 Spacer(Modifier.padding(5.dp))
@@ -178,7 +164,7 @@ fun Account(){
 
                         PersonalizedDropdownField(modifier = Modifier.menuAnchor().fillMaxWidth(),
                             icono = Icons.Filled.Flag,
-                            value = paisSeleccionado,
+                            value = pais,
                             placeholder = "Pais",
                             trailingIcon = expandedDropdown) {}
                         ExposedDropdownMenu(expanded = expandedDropdown,
@@ -186,7 +172,7 @@ fun Account(){
                             modifier = Modifier.height(200.dp)) {
                             paises.forEach {
                                 DropdownMenuItem(text = {Text(it)}, onClick = {
-                                    paisSeleccionado = it;
+                                    accountViewModel.setPais(it)
                                     expandedDropdown = false;
                                     Log.i("OSCAR", "${it}")
                                 })
@@ -203,27 +189,19 @@ fun Account(){
 
 
 
-            PersonalizedTextField(modifier = Modifier,value = "Correo",
-                icono = Icons.Filled.AlternateEmail,
-                placeholder = "Correo") {
-                //accountViewModel.setCorreo(it)
+            PersonalizedTextField(modifier = Modifier,value = correo, icono = Icons.Filled.AlternateEmail, placeholder = "Correo") {
+                accountViewModel.setCorreo(it)
             }
 
             Spacer(Modifier.padding(5.dp))
 
-            PersonalizedTextField(modifier = Modifier,value = "contraseña",
-                icono = Icons.Filled.Visibility,
-                placeholder = "Contraseña") {
-                //accountViewModel.setContrasenia(it
+            PersonalizedTextField(modifier = Modifier,value = contrasenia, icono = Icons.Filled.Visibility, placeholder = "Contraseña") {
+                accountViewModel.setContrasenia(it)
             }
 
             Spacer(Modifier.padding(5.dp))
 
-            PersonalizedTextField(modifier = Modifier,value = "Confirmar Contraseña",
-                icono = Icons.Filled.Visibility,
-                placeholder = "Confirmar contraseña") {
-
-                /*
+            PersonalizedTextField(modifier = Modifier,value = contrasenia2, icono = Icons.Filled.Visibility, placeholder = "Confirmar contraseña") {
                contrasenia2 = it
 
                if(contrasenia2 == contrasenia){
@@ -231,14 +209,12 @@ fun Account(){
                }else{
                    samePassword = false
                }
-               */
             }
 
 
             Spacer(Modifier.padding(5.dp))
 
             Button(onClick = {
-                /*
                 if(samePassword == true){
                     Log.i("OSCAR", "${correo} ${contrasenia}")
                     accountViewModel.editarUsuario(usuario2?.idUsuario ?: 0,nombre,correo,contrasenia,telefono,edad,pais,apellido_paterno,apellido_materno);
@@ -249,7 +225,7 @@ fun Account(){
                 }else{
                     Log.i("OSCAR", "contraseña no coincidente")
                 }
-                */
+
             },
                 modifier = Modifier.fillMaxWidth().height(47.dp),
                 colors = ButtonDefaults.buttonColors( containerColor = Color(0xFF1A2130))) {

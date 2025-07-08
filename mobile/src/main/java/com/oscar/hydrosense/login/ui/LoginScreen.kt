@@ -69,7 +69,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "usuario");
+
 
 @Composable
 fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, navController: NavController){
@@ -84,7 +84,7 @@ fun Login(modifier:Modifier, loginViewModel: LoginViewModel, navController: NavC
     val loginStatus by loginViewModel.loginStatus.observeAsState(initial = false);
     val response by loginViewModel.response.observeAsState();
 
-    val context = LocalContext.current;
+
     val snackbarHostState = remember { SnackbarHostState() };
     val coroutineScope = rememberCoroutineScope();
 
@@ -93,10 +93,6 @@ fun Login(modifier:Modifier, loginViewModel: LoginViewModel, navController: NavC
         if(loginStatus){
             Log.i("OSCAR", "todo bien");
             Log.i("OSCAR", "${response?.nombre}");
-            val json = Gson().toJson(response);
-            val key = stringPreferencesKey("login_response");
-            context.dataStore.edit { prefs -> prefs[key] = json };
-
             navController.navigate("home")
 
         }else{

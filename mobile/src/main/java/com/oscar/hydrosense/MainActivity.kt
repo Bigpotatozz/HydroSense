@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
 
             HydroSenseTheme {
                     Column(Modifier.fillMaxSize().padding(WindowInsets.systemBars.asPaddingValues())) {
-                        AccountScreen()
+                        AppNavigation();
                     }
 
 
@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
             }
 
             composable("Account") {
-                AccountScreen();
+                AccountScreen( accountViewModel = accountViewModel, navController);
             }
         }
     }
