@@ -61,19 +61,19 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
 
         NavHost(navController = navController, startDestination = "login"){
-            composable("Login") {
+            composable("login") {
                 LoginScreen(modifier = Modifier, loginViewModel = loginViewModel, navController = navController)
             }
 
-            composable("Home") {
+            composable("home") {
                 HomeScreen(navController);
             }
 
-            composable("Register") {
+            composable("register") {
                 RegistroScreen(modifier = Modifier, registerViewModel = registerViewModel, navController)
             }
 
-            composable("Account") {
+            composable("account") {
                 AccountScreen( accountViewModel = accountViewModel, navController);
             }
         }
