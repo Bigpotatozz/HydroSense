@@ -1,6 +1,8 @@
 package com.oscar.hydrosense.registro.ui
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,6 +41,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
@@ -66,6 +69,8 @@ fun RegistroScreen( modifier: Modifier, registerViewModel: RegisterViewModel, na
 @Composable
 fun Registro(registerViewModel: RegisterViewModel, navController: NavController){
 
+    var context: Context = LocalContext.current;
+
 
     val nombre by registerViewModel.nombre.observeAsState(initial = "");
     val correo by registerViewModel.correo.observeAsState(initial = "");
@@ -79,8 +84,6 @@ fun Registro(registerViewModel: RegisterViewModel, navController: NavController)
     var contrasenia2 by rememberSaveable { mutableStateOf("") };
     var samePassword by rememberSaveable { mutableStateOf(false) };
 
-
-    val snackbarHostState = remember { SnackbarHostState() };
     val coroutineScope = rememberCoroutineScope();
 
 
@@ -204,14 +207,10 @@ fun Registro(registerViewModel: RegisterViewModel, navController: NavController)
             if(samePassword == true && termsAndConditions == true){
                 Log.i("OSCAR", "${correo} ${contrasenia}")
                 registerViewModel.registrarUsuario(nombre,correo,contrasenia,telefono,edad,pais,apellido_paterno,apellido_materno);
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar("Usuario registrado con exito")
-                }
-
                 navController.navigate("Login")
 
             }else{
-                Log.i("OSCAR", "contraseña no coincidente")
+                Toast.makeText(context, "Las contraseñas no coinciden o no ha aceptado los terminos y condiciones", Toast.LENGTH_SHORT).show();
             }
 
         },

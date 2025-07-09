@@ -1,6 +1,7 @@
 package com.oscar.hydrosense.account.ui
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -223,7 +224,7 @@ fun Account(accountViewModel: AccountViewModel, navController: NavController){
                     }
 
                 }else{
-                    Log.i("OSCAR", "contraseña no coincidente")
+                    Toast.makeText(context, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
                 }
 
             },

@@ -17,14 +17,16 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
 
     private var _correo = MutableLiveData<String>();
     private var _contrasenia = MutableLiveData<String>();
-    private var _login = MutableLiveData<Boolean>();
     private var _response = MutableLiveData<LoginResponse?>();
+    private var _loginState = MutableLiveData<Boolean>();
+    private var _intento = MutableLiveData<Int>(0);
 
 
     var correo: LiveData<String> = _correo;
     var contrasenia: LiveData<String> = _contrasenia;
-    var loginStatus: LiveData<Boolean> = _login;
     var response: LiveData<LoginResponse?> = _response;
+    var loginState: LiveData<Boolean> = _loginState;
+    var intento: LiveData<Int> = _intento;
 
     fun setCorreo (correo: String){
         _correo.value = correo;
@@ -33,6 +35,9 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
         _contrasenia.value = contrasenia;
     }
 
+    fun setIntento (){
+        _intento.value = (_intento.value ?: 0) + 1
+    }
 
 
 
@@ -41,13 +46,14 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
 
         viewModelScope.launch {
            val response = loginUseCase.invoke(loginRequest);
-
-            if(response !=  null){
-                _login.value = true
-            }else {
-                _login.value = false
-            }
             _response.value = response;
+
+            if(_response.value != null){
+                _loginState.value = true;
+                _intento.value = 0;
+            }else{
+                _loginState.value = false
+            }
 
         }
     }

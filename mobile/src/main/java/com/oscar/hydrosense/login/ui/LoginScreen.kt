@@ -3,6 +3,7 @@ package com.oscar.hydrosense.login.ui
 import android.R
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -67,8 +69,7 @@ import dagger.hilt.android.internal.Contexts
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-
-
+import kotlin.math.log
 
 
 @Composable
@@ -81,24 +82,19 @@ fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, navControlle
 fun Login(modifier:Modifier, loginViewModel: LoginViewModel, navController: NavController){
     val correo by loginViewModel.correo.observeAsState(initial = "");
     val contrasenia by loginViewModel.contrasenia.observeAsState(initial = "");
-    val loginStatus by loginViewModel.loginStatus.observeAsState(initial = false);
     val response by loginViewModel.response.observeAsState();
+    val loginState by loginViewModel.loginState.observeAsState( initial = false);
+    val intent by loginViewModel.intento.observeAsState(initial = 0);
+
+    val context = LocalContext.current;
 
 
-    val snackbarHostState = remember { SnackbarHostState() };
-    val coroutineScope = rememberCoroutineScope();
-
-
-    LaunchedEffect(loginStatus) {
-        if(loginStatus){
-            Log.i("OSCAR", "todo bien");
-            Log.i("OSCAR", "${response?.nombre}");
+    LaunchedEffect(loginState, intent) {
+        if(loginState != false){
             navController.navigate("home")
-
         }else{
-            Log.i("OSCAR", "todo mal")
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar("Error al registrar")
+            if(intent > 0){
+                Toast.makeText(context, "Correo o contraseña incorrectos", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -141,6 +137,12 @@ fun Login(modifier:Modifier, loginViewModel: LoginViewModel, navController: NavC
 
             Button(onClick = {
                 loginViewModel.login(correo, contrasenia);
+
+                Log.i("OSCAR", "Intento: ${loginState}")
+                if(loginState == false){
+                    loginViewModel.setIntento();
+                    Log.i("OSCAR", "Intento: ${intent}")
+                }
                },
                 shape = RoundedCornerShape(22.dp),
                 modifier = Modifier.fillMaxWidth().height(47.dp),
@@ -167,16 +169,7 @@ fun Login(modifier:Modifier, loginViewModel: LoginViewModel, navController: NavC
             Spacer(Modifier.padding(15.dp))
 
             Button(onClick = {
-
-                navController.navigate("register");
-
-                if(loginStatus == false){
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar("Usuario o contraseña incorrectos");
-                    }
-                }
-
-
+                    navController.navigate("register");
             },
                 modifier = Modifier.fillMaxWidth().height(47.dp),
                 colors = ButtonDefaults.buttonColors( containerColor = Color(0xFF1A2130))) {
@@ -201,17 +194,6 @@ fun Login(modifier:Modifier, loginViewModel: LoginViewModel, navController: NavC
 
 
             }
-
-
-
-
-
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(16.dp)
-            )
 
         }
     }
