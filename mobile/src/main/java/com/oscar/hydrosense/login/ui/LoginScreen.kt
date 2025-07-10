@@ -66,6 +66,7 @@ import com.oscar.hydrosense.login.data.network.response.LoginResponse
 import com.oscar.hydrosense.theme.funnelSans
 import com.oscar.hydrosense.ui.PersonalizedTextField
 import dagger.hilt.android.internal.Contexts
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -82,7 +83,6 @@ fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, navControlle
 fun Login(modifier:Modifier, loginViewModel: LoginViewModel, navController: NavController){
     val correo by loginViewModel.correo.observeAsState(initial = "");
     val contrasenia by loginViewModel.contrasenia.observeAsState(initial = "");
-    val response by loginViewModel.response.observeAsState();
     val loginState by loginViewModel.loginState.observeAsState( initial = false);
     val intent by loginViewModel.intento.observeAsState(initial = 0);
 
@@ -93,6 +93,7 @@ fun Login(modifier:Modifier, loginViewModel: LoginViewModel, navController: NavC
         if(loginState != false){
             navController.navigate("home")
         }else{
+            delay(1000)
             if(intent > 0){
                 Toast.makeText(context, "Correo o contraseña incorrectos", Toast.LENGTH_SHORT).show();
             }
