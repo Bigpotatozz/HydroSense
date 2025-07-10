@@ -63,13 +63,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @Composable
-fun AccountScreen( accountViewModel: AccountViewModel, navController: NavController) {
-    Account( accountViewModel, navController);
+fun AccountScreen(modifier: Modifier,  accountViewModel: AccountViewModel, navController: NavController) {
+    Account( modifier, accountViewModel, navController);
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Account(accountViewModel: AccountViewModel, navController: NavController){
+fun Account(modifier: Modifier, accountViewModel: AccountViewModel, navController: NavController){
 
 
     val context = LocalContext.current

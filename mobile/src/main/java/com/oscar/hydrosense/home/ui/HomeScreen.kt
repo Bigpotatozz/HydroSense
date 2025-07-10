@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.first
 
 
 @Composable
-fun HomeScreen(navController: NavController){
+fun HomeScreen(modifier:Modifier, navController: NavController){
     val context = LocalContext.current
     var usuario by remember { mutableStateOf<LoginResponse?>(null); };
 
@@ -45,42 +45,11 @@ fun HomeScreen(navController: NavController){
 
     }
 
-
-    Scaffold(
-        bottomBar = {Navbar(navController)}
-    ) { innerPadding ->
-        Column(Modifier.fillMaxSize().padding(innerPadding)) {
+        Column(Modifier.fillMaxSize()) {
             Text("Hola ${usuario?.nombre}")
         }
-    }
 }
 
-@Composable
-fun Navbar(navController: NavController) {
 
-    var selectedItem by rememberSaveable { mutableStateOf(0)}
-    val items = listOf("Home", "Profile");
-    val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.AccountCircle)
-    val unselectedIcons = listOf(Icons.Filled.Home, Icons.Filled.AccountCircle)
-
-    NavigationBar(modifier = Modifier,
-        containerColor = NavigationBarDefaults.containerColor,
-        contentColor = MaterialTheme.colorScheme.contentColorFor(NavigationBarDefaults.containerColor)) {
-
-        items.forEachIndexed { index, item ->
-            NavigationBarItem(icon = {
-                Icon( if (selectedItem == index) selectedIcons[index] else unselectedIcons[index], contentDescription = item)},
-            label = { Text(item) },
-                selected = selectedItem == index,
-                onClick = {
-                    selectedItem == index
-                    navController.navigate("Account")
-                });
-        }
-
-    }
-
-
-}
 
 

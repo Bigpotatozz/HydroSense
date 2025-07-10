@@ -11,13 +11,31 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.core.DataStore // Correct import for DataStore
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.oscar.hydrosense.account.ui.Account
 import com.oscar.hydrosense.account.ui.AccountScreen
@@ -38,17 +56,28 @@ class MainActivity : ComponentActivity() {
     private val registerViewModel: RegisterViewModel by viewModels();
     private val accountViewModel: AccountViewModel by viewModels();
 
+
     val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user");
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState);
         setContent {
+            val navController = rememberNavController();
+            val noBottomBar = listOf<String>("login", "register");
+            val currentBackStackEntry by navController.currentBackStackEntryAsState();
+            val rutactual = currentBackStackEntry?.destination?.route
+            val mostrarBottomBar = rutactual !in noBottomBar;
 
             HydroSenseTheme {
-                    Column(Modifier.fillMaxSize().padding(WindowInsets.systemBars.asPaddingValues())) {
-                        AppNavigation();
+                Scaffold(bottomBar = {
+
+                    if(mostrarBottomBar){
+                        Navbar(navController)
                     }
+                }) { innerPadding ->
+                    AppNavigation(Modifier.padding(innerPadding), navController);
+                }
 
 
             }
@@ -57,28 +86,57 @@ class MainActivity : ComponentActivity() {
 
 
     @Composable
-    fun AppNavigation(){
-        val navController = rememberNavController()
+    fun AppNavigation(modifier:Modifier, navController: NavHostController){
 
-        NavHost(navController = navController, startDestination = "login"){
+        NavHost(navController = navController, startDestination = "login", modifier = modifier){
             composable("login") {
-                LoginScreen(modifier = Modifier, loginViewModel = loginViewModel, navController = navController)
+                LoginScreen(modifier = modifier, loginViewModel = loginViewModel, navController = navController)
             }
 
             composable("home") {
-                HomeScreen(navController);
+                HomeScreen(modifier,navController);
             }
 
             composable("register") {
-                RegistroScreen(modifier = Modifier, registerViewModel = registerViewModel, navController)
+                RegistroScreen(modifier = modifier, registerViewModel = registerViewModel, navController)
             }
 
             composable("account") {
-                AccountScreen( accountViewModel = accountViewModel, navController);
+                AccountScreen( modifier, accountViewModel = accountViewModel, navController);
             }
         }
     }
 
+
+
+    @Composable
+    fun Navbar(navController: NavController) {
+
+        var selectedItem by rememberSaveable { mutableStateOf(0)}
+        val items = listOf("home", "account");
+        val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.AccountCircle)
+        val unselectedIcons = listOf(Icons.Filled.Home, Icons.Filled.AccountCircle)
+
+        NavigationBar(modifier = Modifier,
+            containerColor = NavigationBarDefaults.containerColor,
+            contentColor = MaterialTheme.colorScheme.contentColorFor(NavigationBarDefaults.containerColor)) {
+
+            items.forEachIndexed { index, item ->
+                NavigationBarItem(icon = {
+                    Icon( if (selectedItem == index) selectedIcons[index] else unselectedIcons[index], contentDescription = item)},
+                    label = { Text(item) },
+                    selected = selectedItem == index,
+                    onClick = {
+                        selectedItem = index
+                        navController.navigate("${item}")
+                    },
+                    );
+            }
+
+        }
+
+
+    }
 
 }
 
