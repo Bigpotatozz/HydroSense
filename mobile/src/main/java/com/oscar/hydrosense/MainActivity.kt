@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
                         Navbar(navController)
                     }
                 }) { innerPadding ->
-                    AppNavigation(Modifier.padding(innerPadding), navController);
+                    HomeScreen(Modifier.padding(innerPadding), navController);
                 }
 
 
@@ -122,8 +122,8 @@ class MainActivity : ComponentActivity() {
             contentColor = MaterialTheme.colorScheme.contentColorFor(NavigationBarDefaults.containerColor)) {
 
             items.forEachIndexed { index, item ->
-                NavigationBarItem(icon = {
-                    Icon( if (selectedItem == index) selectedIcons[index] else unselectedIcons[index], contentDescription = item)},
+                NavigationBarItem(
+                    icon = { Icon( if (selectedItem == index) selectedIcons[index] else unselectedIcons[index], contentDescription = item)},
                     label = { Text(item) },
                     selected = selectedItem == index,
                     onClick = {
