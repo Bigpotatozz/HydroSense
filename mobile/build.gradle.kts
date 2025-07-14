@@ -47,10 +47,14 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+
+
     }
-
-
-
+    packagingOptions {
+        resources {
+            excludes += listOf("META-INF/INDEX.LIST", "META-INF/io.netty.versions.properties")
+        }
+    }
 
     kotlinOptions {
         jvmTarget = "11"
@@ -98,4 +102,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    implementation ("com.hivemq:hivemq-mqtt-client:1.3.3")
+
 }

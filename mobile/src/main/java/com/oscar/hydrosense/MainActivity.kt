@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
@@ -41,6 +43,7 @@ import com.oscar.hydrosense.account.ui.Account
 import com.oscar.hydrosense.account.ui.AccountScreen
 import com.oscar.hydrosense.account.ui.AccountViewModel
 import com.oscar.hydrosense.home.ui.HomeScreen
+import com.oscar.hydrosense.home.ui.SensorViewModel
 import com.oscar.hydrosense.login.ui.Login
 import com.oscar.hydrosense.login.ui.LoginScreen
 import com.oscar.hydrosense.login.ui.LoginViewModel
@@ -55,6 +58,7 @@ class MainActivity : ComponentActivity() {
     private val loginViewModel: LoginViewModel by viewModels();
     private val registerViewModel: RegisterViewModel by viewModels();
     private val accountViewModel: AccountViewModel by viewModels();
+    private val sensorViewModel: SensorViewModel by viewModels();
 
 
     val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user");
@@ -63,6 +67,7 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState);
         setContent {
+
             val navController = rememberNavController();
             val noBottomBar = listOf<String>("login", "register");
             val currentBackStackEntry by navController.currentBackStackEntryAsState();
@@ -76,7 +81,7 @@ class MainActivity : ComponentActivity() {
                         Navbar(navController)
                     }
                 }) { innerPadding ->
-                    HomeScreen(Modifier.padding(innerPadding), navController);
+                    HomeScreen(Modifier.padding(innerPadding), navController, sensorViewModel);
                 }
 
 
@@ -94,14 +99,14 @@ class MainActivity : ComponentActivity() {
             }
 
             composable("home") {
-                HomeScreen(modifier,navController);
+                HomeScreen(modifier,navController, sensorViewModel);
             }
 
             composable("register") {
                 RegistroScreen(modifier = modifier, registerViewModel = registerViewModel, navController)
             }
 
-            composable("account") {
+            composable("perfil") {
                 AccountScreen( modifier, accountViewModel = accountViewModel, navController);
             }
         }
@@ -113,7 +118,7 @@ class MainActivity : ComponentActivity() {
     fun Navbar(navController: NavController) {
 
         var selectedItem by rememberSaveable { mutableStateOf(0)}
-        val items = listOf("home", "account");
+        val items = listOf("home", "perfil");
         val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.AccountCircle)
         val unselectedIcons = listOf(Icons.Filled.Home, Icons.Filled.AccountCircle)
 
