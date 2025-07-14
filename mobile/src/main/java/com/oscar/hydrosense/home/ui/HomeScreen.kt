@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -81,6 +82,8 @@ fun HomeScreen(modifier:Modifier, navController: NavController, viewModel: Senso
 @Composable
 fun Home(modifier: Modifier, navController: NavController, sensorViewModel: SensorViewModel){
 
+    val data by sensorViewModel.data.observeAsState(null);
+
 
     val scrollState = rememberScrollState();
     Column(modifier = modifier.fillMaxSize().padding(15.dp).verticalScroll(scrollState)) {
@@ -97,7 +100,7 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 
         Spacer(Modifier.padding(7.dp))
         Row (Modifier.fillMaxWidth().height(340.dp)){
-            VerticalWidget(Modifier.weight(1f), "7", "Medicion del PH")
+            VerticalWidget(Modifier.weight(1f), "${data?.ph}", "Medicion del PH")
 
             Spacer(Modifier.padding(5.dp))
             Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween){
