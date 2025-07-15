@@ -1,5 +1,6 @@
 package com.oscar.hydrosense.home.ui
 
+import android.os.Build
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -54,9 +55,13 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHost
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.google.gson.Gson
 import com.oscar.hydrosense.login.data.network.dataStore
 import com.oscar.hydrosense.login.data.network.response.LoginResponse
+import com.oscar.hydrosense.models.NotificacionHelper
 import com.oscar.hydrosense.theme.funnelSans
 import kotlinx.coroutines.flow.first
 
@@ -79,12 +84,39 @@ fun HomeScreen(modifier:Modifier, navController: NavController, viewModel: Senso
 
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun Home(modifier: Modifier, navController: NavController, sensorViewModel: SensorViewModel){
 
+    val context = LocalContext.current;
     val data by sensorViewModel.flow.collectAsState(null);
 
-    Log.i("OSCAR", "${data}");
+    //VERIFICA QUE LA VERSION SEA MAYOR A LA OREO
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+
+        //CREA UNA VARIABLE QUE GUARDA EL PERMISO DE NOTIFICACIONES
+        val permisoNotificaciones = rememberPermissionState(android.Manifest.permission.POST_NOTIFICATIONS);
+
+        //CUANDO LA APLICACION SE EJECUTE
+        LaunchedEffect(Unit) {
+            //VERIFICA QUE TENGA PERMISOS
+            if(!permisoNotificaciones.status.isGranted){
+                //SI NO TIENE PERMISOS SE LOS PIDE AL USUARIO
+                permisoNotificaciones.launchPermissionRequest();
+            }
+        }
+
+    };
+
+
+
+
+    data?.ph?.let {
+        if(it < 5 ){
+            Log.i("OSCAR","pase por aqui")
+            sensorViewModel.enviarNotificacion("Nivel de ph bajo", "El ph del agua esta bajo, favor de revisar")
+        }
+    }
 
     val scrollState = rememberScrollState();
     Column(modifier = modifier.fillMaxSize().padding(15.dp).verticalScroll(scrollState)) {
