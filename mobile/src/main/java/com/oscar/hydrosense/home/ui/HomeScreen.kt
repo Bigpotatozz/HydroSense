@@ -82,8 +82,9 @@ fun HomeScreen(modifier:Modifier, navController: NavController, viewModel: Senso
 @Composable
 fun Home(modifier: Modifier, navController: NavController, sensorViewModel: SensorViewModel){
 
-    val data by sensorViewModel.data.observeAsState(null);
+    val data by sensorViewModel.flow.collectAsState(null);
 
+    Log.i("OSCAR", "${data}");
 
     val scrollState = rememberScrollState();
     Column(modifier = modifier.fillMaxSize().padding(15.dp).verticalScroll(scrollState)) {
@@ -104,8 +105,8 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 
             Spacer(Modifier.padding(5.dp))
             Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween){
-                SquareWidget(Modifier, "37", "Temp", "° Celsius", 0xFF5A72A0)
-                SquareWidget(Modifier, "1", "Turbidez", "UNT", 0xFF1A2130)
+                SquareWidget(Modifier, "${data?.temp}", "Temp", "° Celsius", 0xFF5A72A0)
+                SquareWidget(Modifier, "${data?.turbidez}", "Turbidez", "UNT", 0xFF1A2130)
             }
 
         }

@@ -14,4 +14,6 @@ import org.json.JSONObject
 import javax.inject.Inject
 import javax.inject.Singleton
 
+class SensorClient {
 
+}

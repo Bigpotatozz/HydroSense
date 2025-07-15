@@ -12,27 +12,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
 class SensorViewModel @Inject constructor(): ViewModel() {
-
-    private var _data = MutableLiveData<SensorResponse?>();
-
-    var data: MutableLiveData<SensorResponse?> = _data;
-
-    init {
-        connectToMqtt();
-
-        Log.i("OSCAR", "${data.value}");
-
-    }
-
-    private fun connectToMqtt() {
-        viewModelScope.launch {
-            data.value = provideMqttClient();
-        }
-    }
-
-
-
+        val flow = provideMqttClient()
+            .stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = null)
 }
