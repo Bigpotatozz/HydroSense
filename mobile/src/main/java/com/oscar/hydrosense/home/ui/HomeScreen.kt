@@ -59,6 +59,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.gson.Gson
+import com.oscar.hydrosense.helpers.Timer
 import com.oscar.hydrosense.login.data.network.dataStore
 import com.oscar.hydrosense.login.data.network.response.LoginResponse
 import com.oscar.hydrosense.models.NotificacionHelper
@@ -90,6 +91,7 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 
     val context = LocalContext.current;
     val data by sensorViewModel.flow.collectAsState(null);
+    var notificationState by rememberSaveable {mutableStateOf(true)};
 
     //VERIFICA QUE LA VERSION SEA MAYOR A LA OREO
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
@@ -112,9 +114,13 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 
 
     data?.ph?.let {
-        if(it < 5 ){
+        if(it < 5 && notificationState == true){
             Log.i("OSCAR","pase por aqui")
             sensorViewModel.enviarNotificacion("Nivel de ph bajo", "El ph del agua esta bajo, favor de revisar")
+            notificationState = false;
+            Timer(20000) {
+                notificationState = true
+            }
         }
     }
 

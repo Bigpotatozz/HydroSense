@@ -65,7 +65,7 @@ fun provideMqttClient(): Flow<SensorResponse> = callbackFlow {
 
 
         awaitClose() {
-            Log.i("OSCAR", "🔌 Desconectando MQTT client")
+            Log.i("OSCAR", "Desconectando MQTT client")
             mqttClient.disconnect()
         }
     }
