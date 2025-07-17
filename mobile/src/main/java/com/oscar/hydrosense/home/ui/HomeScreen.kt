@@ -1,5 +1,6 @@
 package com.oscar.hydrosense.home.ui
 
+import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.compose.foundation.background
@@ -63,6 +64,7 @@ import com.oscar.hydrosense.helpers.Timer
 import com.oscar.hydrosense.login.data.network.dataStore
 import com.oscar.hydrosense.login.data.network.response.LoginResponse
 import com.oscar.hydrosense.models.NotificacionHelper
+import com.oscar.hydrosense.services.SensorService
 import com.oscar.hydrosense.theme.funnelSans
 import kotlinx.coroutines.flow.first
 
@@ -92,6 +94,12 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
     val context = LocalContext.current;
     val data by sensorViewModel.flow.collectAsState(null);
     var notificationState by rememberSaveable {mutableStateOf(true)};
+    LaunchedEffect(Unit) {
+        val intent = Intent(context, SensorService::class.java);
+        context.startService(intent);
+    }
+
+    Log.i("OSCAR", "${data}")
 
     //VERIFICA QUE LA VERSION SEA MAYOR A LA OREO
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){

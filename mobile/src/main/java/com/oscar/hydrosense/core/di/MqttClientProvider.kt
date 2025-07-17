@@ -3,22 +3,24 @@ package com.oscar.hydrosense.core.di
 import android.util.Log
 import com.google.gson.Gson
 import com.hivemq.client.mqtt.MqttClient
-import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
 import com.oscar.hydrosense.home.data.network.response.SensorResponse
-import dagger.Module
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.future.await
 import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 
 
-fun provideMqttClient(): Flow<SensorResponse> = callbackFlow {
+@Singleton
+class MqttClientProvider @Inject constructor() {
+    fun provideMqttClient(): Flow<SensorResponse> = callbackFlow {
 
         val mqttClient = MqttClient.builder()
             .useMqttVersion5()
             .identifier(UUID.randomUUID().toString())
-            .serverHost("cdc2f4233bd6466e9a7d8f22139fefa5.s1.eu.hivemq.cloud")
+            .serverHost("42a15c797ff74200838c99684b8171eb.s1.eu.hivemq.cloud")
             .serverPort(8883)
             .sslWithDefaultConfig()
             .buildAsync();
@@ -26,8 +28,8 @@ fun provideMqttClient(): Flow<SensorResponse> = callbackFlow {
         mqttClient
             .connectWith()
             .simpleAuth()
-            .username("erick")
-            .password("Minefort10".toByteArray())
+            .username("oscar")
+            .password("Holaquehace12".toByteArray())
             .applySimpleAuth()
             .cleanStart(true)
             .send()
@@ -38,7 +40,7 @@ fun provideMqttClient(): Flow<SensorResponse> = callbackFlow {
 
         mqttClient
             .subscribeWith()
-            .topicFilter("iot/turbidez")
+            .topicFilter("sensor/agua")
             .callback {message ->
 
                 val optionalPayload = message.payload
@@ -70,3 +72,6 @@ fun provideMqttClient(): Flow<SensorResponse> = callbackFlow {
             mqttClient.disconnect()
         }
     }
+}
+
+
