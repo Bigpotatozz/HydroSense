@@ -13,21 +13,16 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 
 class NotificacionHelper @Inject constructor(@ApplicationContext private val context: Context) {
 
-
     fun showNotification(title: String, message: String){
-
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-
             val canal = NotificationChannel(
                 "canal_id",
                 "Notificaciones generales",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
-
             notificationManager.createNotificationChannel(canal)
         }
 

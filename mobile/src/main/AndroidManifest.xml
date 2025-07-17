@@ -28,4 +28,11 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <service
+        android:name=".services.SensorService"
+        android:enabled="true"
+        android:exported="false" />
+
 </manifest>
+
+
