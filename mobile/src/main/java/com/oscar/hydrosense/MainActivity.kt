@@ -81,7 +81,7 @@ class MainActivity : ComponentActivity() {
                         Navbar(navController)
                     }
                 }) { innerPadding ->
-                    HomeScreen(Modifier.padding(innerPadding), navController, sensorViewModel);
+                    AppNavigation(Modifier.padding(innerPadding), navController);
                 }
 
 
@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AppNavigation(modifier:Modifier, navController: NavHostController){
 
-        NavHost(navController = navController, startDestination = "login", modifier = modifier){
+        NavHost(navController = navController, startDestination = "login", modifier = modifier.fillMaxSize()){
             composable("login") {
                 LoginScreen(modifier = modifier, loginViewModel = loginViewModel, navController = navController)
             }

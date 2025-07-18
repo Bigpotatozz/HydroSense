@@ -83,7 +83,7 @@ fun HomeScreen(modifier:Modifier, navController: NavController, viewModel: Senso
 
     }
 
-    Home(modifier, navController, viewModel);
+    Home(modifier.fillMaxSize(), navController, viewModel);
 
 }
 
@@ -97,6 +97,8 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
     var timerState by rememberSaveable { mutableStateOf(false) };
     var waterState by rememberSaveable { mutableStateOf("Buena") }
     var rectangleDescription by rememberSaveable { mutableStateOf("El agua esta limpia y en buen estado") };
+
+    var color: Long by rememberSaveable { mutableStateOf(0xFF83B4FF) }
 
 
     LaunchedEffect(Unit) {
@@ -116,11 +118,9 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
                         }
                         waterState = "Mal estado"
                         rectangleDescription = "El agua no es optima para su uso"
-
-
+                        color = 0xFFA16D28
                     }
                     (it.ph > 7) -> {
-
                         if(notificationState != false){
                             sensorViewModel.enviarNotificacion("Nivel de ph bajo", "El ph del agua es alto, favor de revisar")
                             notificationState = false;
@@ -128,31 +128,27 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
                         }
                         waterState = "Mal estado"
                         rectangleDescription = "El agua no es optima para su uso"
-
+                        color = 0xFFA16D28
                     }
                     (it.temp < 15) -> {
-
                         if(notificationState != false){
                             sensorViewModel.enviarNotificacion("Temperatura baja", "La temperatura del agua es bajo, favor de revisar")
                             notificationState = false;
                             timerState = true;
                         }
-
                         waterState = "Mal estado"
                         rectangleDescription = "El agua no es optima para su uso"
-
+                        color = 0xFFA16D28
                     }
                     (it.temp > 25) -> {
-
                         if(notificationState != false){
                             sensorViewModel.enviarNotificacion("Temperatura baja", "La temperatura del agua es alto, favor de revisar")
                             notificationState = false;
                             timerState = true;
                         }
-
                         waterState = "Mal estado"
                         rectangleDescription = "El agua no es optima para su uso"
-
+                        color = 0xFFA16D28
                     }
                     (it.turbidez > 30) -> {
                         if(notificationState != false){
@@ -160,16 +156,16 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
                             notificationState = false;
                             timerState = true;
                         }
-
                         waterState = "Mal estado"
                         rectangleDescription = "El agua no es optima para su uso"
-
+                        color = 0xFFA16D28
                     }
                     else -> {
                         waterState = "Buena"
                         rectangleDescription = "El agua esta limpia y en buen estado"
                         timerState = false;
                         notificationState = true;
+                        color = 0xFF83B4FF
                     }
                 }
             }
@@ -205,7 +201,7 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 
 
     val scrollState = rememberScrollState();
-    Column(modifier = modifier.fillMaxSize().padding(15.dp).verticalScroll(scrollState)) {
+    Column(modifier = Modifier.padding(15.dp).fillMaxSize().verticalScroll(scrollState)) {
 
         Text(text = "Overview",
             style = TextStyle(fontFamily = funnelSans, fontSize = 32.sp, fontWeight = FontWeight.SemiBold))
@@ -215,7 +211,7 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 
         Spacer(modifier = Modifier.padding(10.dp))
 
-        HorizontalWidget(Modifier, waterState, rectangleDescription);
+        HorizontalWidget(Modifier, waterState, rectangleDescription, color);
 
         Spacer(Modifier.padding(7.dp))
         Row (Modifier.fillMaxWidth().height(340.dp)){
@@ -238,13 +234,13 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 }
 
 @Composable
-fun HorizontalWidget(modifier: Modifier, data: String, description: String){
+fun HorizontalWidget(modifier: Modifier, data: String, description: String, color: Long){
 
     Column(modifier = modifier
         .fillMaxWidth()
         .height(200.dp)
         .clip(RoundedCornerShape(20.dp))
-        .background(Color(0xFF83B4FF))
+        .background(Color(color))
         .padding(20.dp)
         ) {
             Text("Estado general del agua:",
@@ -252,7 +248,7 @@ fun HorizontalWidget(modifier: Modifier, data: String, description: String){
                 modifier = Modifier.width(200.dp));
             Text(data,
                 style = TextStyle(fontSize = 28.sp, fontFamily = funnelSans, fontWeight = FontWeight.SemiBold),
-                color = Color(0xFFB3E2A7));
+                color = Color(0xFF1A2130));
 
         Text(description,
             style = TextStyle(fontSize = 13.sp, fontFamily = funnelSans, fontWeight = FontWeight.Light));
