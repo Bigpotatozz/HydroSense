@@ -94,24 +94,108 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
     val context = LocalContext.current;
     val data by sensorViewModel.flow.collectAsState(null);
     var notificationState by rememberSaveable {mutableStateOf(true)};
+    var timerState by rememberSaveable { mutableStateOf(false) };
+    var waterState by rememberSaveable { mutableStateOf("Buena") }
+    var rectangleDescription by rememberSaveable { mutableStateOf("El agua esta limpia y en buen estado") };
+
+
     LaunchedEffect(Unit) {
         val intent = Intent(context, SensorService::class.java);
         context.startService(intent);
     }
 
+    LaunchedEffect(data) {
+
+            data?.let {
+                when{
+                    (it.ph < 6) -> {
+                        if(notificationState != false){
+                            sensorViewModel.enviarNotificacion("Nivel de ph bajo", "El ph del agua esta bajo, favor de revisar")
+                            notificationState = false;
+                            timerState = true;
+                        }
+                        waterState = "Mal estado"
+                        rectangleDescription = "El agua no es optima para su uso"
+
+
+                    }
+                    (it.ph > 7) -> {
+
+                        if(notificationState != false){
+                            sensorViewModel.enviarNotificacion("Nivel de ph bajo", "El ph del agua es alto, favor de revisar")
+                            notificationState = false;
+                            timerState = true;
+                        }
+                        waterState = "Mal estado"
+                        rectangleDescription = "El agua no es optima para su uso"
+
+                    }
+                    (it.temp < 15) -> {
+
+                        if(notificationState != false){
+                            sensorViewModel.enviarNotificacion("Temperatura baja", "La temperatura del agua es bajo, favor de revisar")
+                            notificationState = false;
+                            timerState = true;
+                        }
+
+                        waterState = "Mal estado"
+                        rectangleDescription = "El agua no es optima para su uso"
+
+                    }
+                    (it.temp > 25) -> {
+
+                        if(notificationState != false){
+                            sensorViewModel.enviarNotificacion("Temperatura baja", "La temperatura del agua es alto, favor de revisar")
+                            notificationState = false;
+                            timerState = true;
+                        }
+
+                        waterState = "Mal estado"
+                        rectangleDescription = "El agua no es optima para su uso"
+
+                    }
+                    (it.turbidez > 30) -> {
+                        if(notificationState != false){
+                            sensorViewModel.enviarNotificacion("Turbidez alta", "La turbidez del agua esta alta, favor de revisar")
+                            notificationState = false;
+                            timerState = true;
+                        }
+
+                        waterState = "Mal estado"
+                        rectangleDescription = "El agua no es optima para su uso"
+
+                    }
+                    else -> {
+                        waterState = "Buena"
+                        rectangleDescription = "El agua esta limpia y en buen estado"
+                        timerState = false;
+                        notificationState = true;
+                    }
+                }
+            }
+
+    }
+
     Log.i("OSCAR", "${data}")
 
-    //VERIFICA QUE LA VERSION SEA MAYOR A LA OREO
+    if(timerState == true) {
+        Timer(2000) {
+            notificationState = true;
+            timerState = false;
+        }
+    }
+
+    //verifica que la version sea mayor a la oreo
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
 
-        //CREA UNA VARIABLE QUE GUARDA EL PERMISO DE NOTIFICACIONES
+        //crea una variable que guarda el permiso para notificaciones de la aplicacion
         val permisoNotificaciones = rememberPermissionState(android.Manifest.permission.POST_NOTIFICATIONS);
 
-        //CUANDO LA APLICACION SE EJECUTE
+        //cuando la aplicacion se ejecute...
         LaunchedEffect(Unit) {
-            //VERIFICA QUE TENGA PERMISOS
+            //verifica que tenga permisos
             if(!permisoNotificaciones.status.isGranted){
-                //SI NO TIENE PERMISOS SE LOS PIDE AL USUARIO
+                //si no tiene permisos se los pide al usuario
                 permisoNotificaciones.launchPermissionRequest();
             }
         }
@@ -119,18 +203,6 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
     };
 
 
-
-
-    data?.ph?.let {
-        if(it < 5 && notificationState == true){
-            Log.i("OSCAR","pase por aqui")
-            sensorViewModel.enviarNotificacion("Nivel de ph bajo", "El ph del agua esta bajo, favor de revisar")
-            notificationState = false;
-            Timer(20000) {
-                notificationState = true
-            }
-        }
-    }
 
     val scrollState = rememberScrollState();
     Column(modifier = modifier.fillMaxSize().padding(15.dp).verticalScroll(scrollState)) {
@@ -143,7 +215,7 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 
         Spacer(modifier = Modifier.padding(10.dp))
 
-        HorizontalWidget(Modifier, "Buena", "Estado general del agua: ");
+        HorizontalWidget(Modifier, waterState, rectangleDescription);
 
         Spacer(Modifier.padding(7.dp))
         Row (Modifier.fillMaxWidth().height(340.dp)){
@@ -166,7 +238,7 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 }
 
 @Composable
-fun HorizontalWidget(modifier: Modifier, data: String, label: String){
+fun HorizontalWidget(modifier: Modifier, data: String, description: String){
 
     Column(modifier = modifier
         .fillMaxWidth()
@@ -175,14 +247,14 @@ fun HorizontalWidget(modifier: Modifier, data: String, label: String){
         .background(Color(0xFF83B4FF))
         .padding(20.dp)
         ) {
-            Text("${label}",
+            Text("Estado general del agua:",
                 style = TextStyle(fontSize = 28.sp, fontFamily = funnelSans, fontWeight = FontWeight.SemiBold),
                 modifier = Modifier.width(200.dp));
             Text(data,
                 style = TextStyle(fontSize = 28.sp, fontFamily = funnelSans, fontWeight = FontWeight.SemiBold),
                 color = Color(0xFFB3E2A7));
 
-        Text("El agua esta limpia y en buen estado",
+        Text(description,
             style = TextStyle(fontSize = 13.sp, fontFamily = funnelSans, fontWeight = FontWeight.Light));
     }
 
