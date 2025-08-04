@@ -13,8 +13,16 @@ class RegisterService @Inject constructor(private val registerClient: RegisterCl
 
         return withContext(Dispatchers.IO){
             val response = registerClient.registrarUsuario(usuario);
-            Log.i("OSCAR", "${response}")
+
+
+            if (!response.isSuccessful) {
+                Log.e("OSCAR", "Error ${response.code()}: ${response.errorBody()?.string()}")
+            }else{
+                Log.i("OSCAR", "${response}")
+                Log.i("OSCAR", "${response.body()}")
+            }
             response.body();
+
         }
 
     }
