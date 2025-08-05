@@ -7,8 +7,8 @@ import javax.inject.Inject
 
 class AccountUseCase @Inject constructor(private val repository: AccountRepository) {
 
-    suspend fun invoke(id: Int, usuario: EditRequest): EditResponse? {
-        var response = repository.editarUsuario(id, usuario);
+    suspend fun invoke(id: Int, usuario: EditRequest, token: String): EditResponse? {
+        var response = repository.editarUsuario(id, usuario, token);
         return response;
     }
 

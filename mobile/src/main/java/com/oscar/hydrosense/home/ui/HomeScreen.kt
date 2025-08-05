@@ -80,6 +80,7 @@ fun HomeScreen(modifier:Modifier, navController: NavController, viewModel: Senso
         val prefs = context.dataStore.data.first();
         val json = prefs[stringPreferencesKey("login_response")];
         usuario = Gson().fromJson(json, LoginResponse::class.java)
+        Log.i("OSCAR", "${usuario}")
 
     }
 

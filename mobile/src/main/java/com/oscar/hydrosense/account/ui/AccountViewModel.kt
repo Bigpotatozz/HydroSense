@@ -21,6 +21,7 @@ class AccountViewModel @Inject constructor(private val accountUseCase: AccountUs
     private var _pais = MutableLiveData<String>();
     private var _correo = MutableLiveData<String>();
     private var _contrasenia = MutableLiveData<String>();
+    private var _token = MutableLiveData<String>();
 
     var nombre: LiveData<String> = _nombre;
     var apellido_paterno: LiveData<String> = _apellido_paterno;
@@ -30,7 +31,7 @@ class AccountViewModel @Inject constructor(private val accountUseCase: AccountUs
     var pais: LiveData<String> = _pais;
     var correo: LiveData<String> = _correo;
     var contrasenia: LiveData<String> = _contrasenia;
-
+    var token: LiveData<String> = _token;
 
     fun setNombre (nombre: String){
         _nombre.value = nombre;
@@ -59,8 +60,12 @@ class AccountViewModel @Inject constructor(private val accountUseCase: AccountUs
         _contrasenia.value = contrasenia;
     }
 
+    fun setToken (token: String){
+        _token.value = token;
+    }
 
-    fun editarUsuario(id: Int, nombre: String, correo: String, contrasenia: String, telefono: String, edad: String, pais: String, apellido_paterno: String, apellido_materno: String){
+
+    fun editarUsuario(id: Int, nombre: String, correo: String, contrasenia: String, telefono: String, edad: String, pais: String, apellido_paterno: String, apellido_materno: String, token: String){
         var edadInt = edad.toIntOrNull();
         if(edadInt == null){
             edadInt = 0;
@@ -69,7 +74,7 @@ class AccountViewModel @Inject constructor(private val accountUseCase: AccountUs
         val usuario = EditRequest( nombre, apellido_paterno, apellido_materno, edadInt, pais, correo, contrasenia, telefono);
 
         viewModelScope.launch {
-            accountUseCase.invoke(id, usuario);
+            accountUseCase.invoke(id, usuario, token);
         }
 
 

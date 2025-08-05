@@ -6,8 +6,8 @@ import javax.inject.Inject
 
 class AccountRepository @Inject constructor(private val accountService: AccountService){
 
-    suspend fun editarUsuario(id: Int, usuario: EditRequest): EditResponse? {
-        return accountService.editarUsuario(id, usuario);
+    suspend fun editarUsuario(id: Int, usuario: EditRequest, token: String): EditResponse? {
+        return accountService.editarUsuario(id, usuario, token);
     }
 
 }

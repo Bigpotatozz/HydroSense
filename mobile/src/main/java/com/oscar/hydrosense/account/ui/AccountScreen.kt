@@ -89,6 +89,7 @@ fun Account(modifier: Modifier, accountViewModel: AccountViewModel, navControlle
         val pais by accountViewModel.pais.observeAsState(initial = "");
         val apellido_paterno by accountViewModel.apellido_paterno.observeAsState(initial = "");
         val apellido_materno by accountViewModel.apellido_materno.observeAsState(initial = "");
+        val token by accountViewModel.token.observeAsState(initial = "");
 
         var contrasenia2 by rememberSaveable { mutableStateOf("") };
         var samePassword by rememberSaveable { mutableStateOf(false) };
@@ -100,15 +101,19 @@ fun Account(modifier: Modifier, accountViewModel: AccountViewModel, navControlle
             val prefs = context.dataStore.data.first();
             val json = prefs[stringPreferencesKey("login_response")];
             usuario2 = Gson().fromJson(json, LoginResponse::class.java)
-            accountViewModel.setNombre(usuario2?.nombre ?: "")
-            accountViewModel.setCorreo(usuario2?.correo ?: "")
-            accountViewModel.setTelefono(usuario2?.telefono ?: "")
-            accountViewModel.setEdad(usuario2?.edad.toString())
-            accountViewModel.setPais(usuario2?.pais ?: "")
-            accountViewModel.setApellido_paterno(usuario2?.apellido_paterno ?: "")
-            accountViewModel.setApellido_materno(usuario2?.apellido_materno ?: "")
+            accountViewModel.setNombre(usuario2?.data?.nombre ?: "")
+            accountViewModel.setCorreo(usuario2?.data?.correo ?: "")
+            accountViewModel.setTelefono(usuario2?.data?.telefono ?: "")
+            accountViewModel.setEdad(usuario2?.data?.edad.toString())
+            accountViewModel.setPais(usuario2?.data?.pais ?: "")
+            accountViewModel.setApellido_paterno(usuario2?.data?.apellido_paterno ?: "")
+            accountViewModel.setApellido_materno(usuario2?.data?.apellido_materno ?: "")
+            accountViewModel.setToken(usuario2?.data?.token ?: "")
 
         }
+
+        Log.i("OSCAR", "${usuario2}")
+
 
 
         var expandedDropdown by remember { mutableStateOf(false) };
@@ -123,7 +128,7 @@ fun Account(modifier: Modifier, accountViewModel: AccountViewModel, navControlle
                 style = TextStyle(fontFamily = funnelSans, fontSize = 15.sp, fontWeight = FontWeight.Light))
 
 
-            Spacer(Modifier.padding(30.dp))
+            Spacer(Modifier.padding(10.dp))
 
 
             PersonalizedTextField(modifier = Modifier, nombre, Icons.Filled.Person, "Nombre") {
@@ -218,9 +223,9 @@ fun Account(modifier: Modifier, accountViewModel: AccountViewModel, navControlle
             Button(onClick = {
                 if(samePassword == true){
                     Log.i("OSCAR", "${correo} ${contrasenia}")
-                    accountViewModel.editarUsuario(usuario2?.idUsuario ?: 0,nombre,correo,contrasenia,telefono,edad,pais,apellido_paterno,apellido_materno);
+                    accountViewModel.editarUsuario(usuario2?.data?.idUsuario ?: 0,nombre,correo,contrasenia,telefono,edad,pais,apellido_paterno,apellido_materno, "Bearer ${token}");
                     coroutineScope.launch {
-                        snackbarHostState.showSnackbar("Usuario editado con exito")
+                        Toast.makeText(context, "Usuario editado con exito", Toast.LENGTH_SHORT).show()
                     }
 
                 }else{

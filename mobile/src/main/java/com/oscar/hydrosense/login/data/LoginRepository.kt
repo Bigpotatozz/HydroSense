@@ -11,6 +11,7 @@ import com.google.gson.Gson
 import com.oscar.hydrosense.login.data.network.request.LoginRequest
 import com.oscar.hydrosense.login.data.network.response.LoginResponse
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "usuario");

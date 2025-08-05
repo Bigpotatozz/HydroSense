@@ -9,10 +9,10 @@ import javax.inject.Inject
 
 class AccountService @Inject constructor(private val accountClient: AccountClient){
 
-    suspend fun editarUsuario(id: Int, usuario: EditRequest): EditResponse?{
+    suspend fun editarUsuario(id: Int, usuario: EditRequest, token: String): EditResponse?{
 
         return withContext(Dispatchers.IO) {
-            val response = accountClient.editarUsuario(id, usuario);
+            val response = accountClient.editarUsuario(id, usuario, token);
             Log.i("OSCAR", "${response}")
             response.body();
         }
