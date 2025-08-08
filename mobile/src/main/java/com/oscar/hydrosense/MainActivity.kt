@@ -81,7 +81,7 @@ class MainActivity : ComponentActivity() {
                         Navbar(navController)
                     }
                 }) { innerPadding ->
-                    AppNavigation(Modifier.padding(innerPadding), navController);
+                    HomeScreen(modifier = Modifier.padding(innerPadding), navController, sensorViewModel)
                 }
 
 

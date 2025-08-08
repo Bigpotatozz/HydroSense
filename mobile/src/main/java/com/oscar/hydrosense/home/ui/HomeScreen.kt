@@ -1,9 +1,12 @@
 package com.oscar.hydrosense.home.ui
 
+import com.oscar.hydrosense.R
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +26,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Explore
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -44,9 +49,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -202,148 +211,91 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 
 
     val scrollState = rememberScrollState();
-    Column(modifier = Modifier.padding(15.dp).fillMaxSize().verticalScroll(scrollState)) {
+    Column(modifier.fillMaxSize().verticalScroll(scrollState)) {
+        Column(Modifier.padding(15.dp)) {
+            InfoComponent(Modifier.height(400.dp), R.drawable.start_image_ph, "${data?.ph}", "ph", "acido");
+            Spacer(Modifier.padding(10.dp));
+            InfoComponent(Modifier.height(400.dp), R.drawable.startemperature, "${data?.temp}", "°C", "frio");
+            Spacer(Modifier.padding(10.dp));
+            InfoComponent(Modifier.height(400.dp), R.drawable.starturbidez, "${data?.turbidez}","unt", "limpio");
+        }
 
-        Text(text = "Overview",
-            style = TextStyle(fontFamily = funnelSans, fontSize = 32.sp, fontWeight = FontWeight.SemiBold))
 
-        Text(text = "Informacion recogida por tus sensores",
-            style = TextStyle(fontFamily = funnelSans, fontSize = 15.sp, fontWeight = FontWeight.Light))
+    }
+}
 
-        Spacer(modifier = Modifier.padding(10.dp))
 
-        HorizontalWidget(Modifier, waterState, rectangleDescription, color);
 
-        Spacer(Modifier.padding(7.dp))
-        Row (Modifier.fillMaxWidth().height(340.dp)){
-            VerticalWidget(Modifier.weight(1f), "${data?.ph}", "Medicion del PH")
+/*
+@Composable
+@Preview(showBackground = true)
+fun HomeScreenPreview(){
+    Column(Modifier.padding(15.dp).fillMaxSize()) {
+        InfoComponent(Modifier.height(400.dp), R.drawable.start_image_ph, "7.25", "ph", "acido");
+    }
 
-            Spacer(Modifier.padding(5.dp))
-            Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween){
-                SquareWidget(Modifier, "${data?.temp}", "Temp", "° Celsius", 0xFF5A72A0)
-                SquareWidget(Modifier, "${data?.turbidez}", "Turbidez", "UNT", 0xFF1A2130)
+}
+*/
+
+@Composable
+fun InfoComponent(modifier: Modifier = Modifier, imagen: Int, data: String, medida: String, estado: String){
+
+    Column (modifier.shadow(elevation = 2.dp, shape = RoundedCornerShape(15.dp))
+        .background(Color.White)){
+        Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(15.dp)).weight(1f)){
+            Image(painter = painterResource(id = imagen),
+                contentDescription = "Imagen de inicio ${medida}",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.matchParentSize());
+        }
+
+        Row(Modifier.padding(16.dp).background(Color.White).fillMaxWidth()) {
+            Column ( modifier = Modifier.weight(1f)){
+                Text("Informacion:",
+                    style = TextStyle(fontFamily = funnelSans,
+                        fontSize = 16.sp, fontWeight = FontWeight.SemiBold));
+                Spacer(Modifier.padding(5.dp))
+                Row {
+                    Box(Modifier.clip(RoundedCornerShape(5.dp)).background(Color(0xFF78C841)).padding(3.dp)){
+                        Text("${data}", color = Color.White, style = TextStyle(fontWeight = FontWeight.Bold))
+                    }
+                    Spacer(Modifier.padding(2.dp))
+                    Box(Modifier.clip(RoundedCornerShape(5.dp)).background(Color(0xFF1A2A80)).padding(3.dp)){
+                        Text("${medida}", color = Color.White , style = TextStyle(fontWeight = FontWeight.Bold))
+                    }
+                    Spacer(Modifier.padding(2.dp))
+                    Box(Modifier.clip(RoundedCornerShape(5.dp)).background(Color(0xFFD3AF37)).padding(3.dp)){
+                        Text("${estado}", color = Color.White , style = TextStyle(fontWeight = FontWeight.Bold))
+                    }
+                }
+
+
+
+
             }
 
-        }
-        Spacer(Modifier.padding(7.dp))
+            Button(modifier = Modifier
+                .height(55.dp)
+                .weight(1f),
+                shape = RoundedCornerShape(10.dp),
 
-        DirectionWidget(Modifier.height(60.dp));
+                onClick = {
+                }) {
+                Row (verticalAlignment = Alignment.CenterVertically,
+                    ){
 
+                    Icon(Icons.Filled.KeyboardArrowRight, contentDescription = "Mas informacion")
+                    Spacer(Modifier.padding(5.dp))
+                    Text("Detalles")
+                }
 
-
-    }
-}
-
-@Composable
-fun HorizontalWidget(modifier: Modifier, data: String, description: String, color: Long){
-
-    Column(modifier = modifier
-        .fillMaxWidth()
-        .height(200.dp)
-        .clip(RoundedCornerShape(20.dp))
-        .background(Color(color))
-        .padding(20.dp)
-        ) {
-            Text("Estado general del agua:",
-                style = TextStyle(fontSize = 28.sp, fontFamily = funnelSans, fontWeight = FontWeight.SemiBold),
-                modifier = Modifier.width(200.dp));
-            Text(data,
-                style = TextStyle(fontSize = 28.sp, fontFamily = funnelSans, fontWeight = FontWeight.SemiBold),
-                color = Color(0xFF1A2130));
-
-        Text(description,
-            style = TextStyle(fontSize = 13.sp, fontFamily = funnelSans, fontWeight = FontWeight.Light));
-    }
-
-};
-
-@Composable
-fun VerticalWidget(modifier: Modifier, data: String, label: String){
-    Column(modifier = modifier
-        .clip(RoundedCornerShape(20.dp))
-        .background(Color(0xFFFDFFE2))
-        .padding(20.dp)
-        .fillMaxWidth(),
-        verticalArrangement = Arrangement.Center) {
-        Text("${label}",
-            style = TextStyle(fontSize = 28.sp, fontFamily = funnelSans, fontWeight = FontWeight.SemiBold));
-        Spacer(Modifier.padding(18.dp))
-
-        Column(modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally){
-
-            Text("${data}",
-                style = MaterialTheme.typography.displayLarge.copy(
-                    fontFamily = funnelSans,
-                    fontWeight = FontWeight.SemiBold
-                ));
-
-            Spacer(Modifier.padding(15.dp))
-            Text("Neutro",
-                style = TextStyle(fontSize = 28.sp, fontFamily = funnelSans, fontWeight = FontWeight.SemiBold));
-
-            Text("Ideal para cuidar plantas o animales",
-                style = TextStyle(fontSize = 15.sp, fontFamily = funnelSans, fontWeight = FontWeight.Light),
-                textAlign = TextAlign.Center)
-
-            Spacer(Modifier.padding(3.dp))
-
+            }
         }
     }
-};
 
-@Composable
-fun SquareWidget(modifier: Modifier, data: String, label: String, unidadData: String, color: Long){
-
-    Column(modifier = Modifier
-        .clip(RoundedCornerShape(20.dp))
-        .background(Color(color))
-        .height(165.dp)
-        .padding(15.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center) {
-        Text("${label}",
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontFamily = funnelSans, fontWeight = FontWeight.SemiBold
-            ),
-            color = Color(0xFFFDFFE2));
-
-        Row(modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center) {
-            Text("${data}",
-                style = TextStyle(fontSize = 55.sp, fontFamily = funnelSans, fontWeight = FontWeight.SemiBold),
-                color = Color(0xFFFDFFE2));
-            Text("${unidadData}",
-                style = TextStyle(fontSize = 14.sp, fontFamily = funnelSans, fontWeight = FontWeight.Light),
-                textAlign = TextAlign.Center,
-                color = Color(0xFFFDFFE2))
-        }
-
-        Text("Temperatura ideal",
-            style = TextStyle(fontSize = 14.sp, fontFamily = funnelSans, fontWeight = FontWeight.Light),
-            textAlign = TextAlign.Center,
-            color = Color(0xFFFDFFE2))
-    }
 }
 
-@Composable
-fun DirectionWidget(modifier: Modifier){
-    Row(modifier
-        .clip(RoundedCornerShape(10.dp))
-        .background(Color(0xFFD7D7D7))
-        .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center) {
 
-        Icon(Icons.Outlined.Explore,
-            contentDescription = "Ubicacion",
-            tint = Color.Black,
-            modifier = Modifier.size(33.dp))
 
-        Spacer(Modifier.padding(5.dp))
-        Text("2 C. Independencia El Jicote, Nayarit",
-            style = TextStyle(fontSize = 14.sp, fontFamily = funnelSans, fontWeight = FontWeight.Normal),)
-    }
-}
+
 
