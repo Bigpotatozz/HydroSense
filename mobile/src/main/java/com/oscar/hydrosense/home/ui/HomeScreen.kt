@@ -110,6 +110,9 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 
     var color: Long by rememberSaveable { mutableStateOf(0xFF83B4FF) }
 
+    var filtroState by rememberSaveable { mutableStateOf(false) };
+    var filtroString by rememberSaveable { mutableStateOf("apagado") };
+
 
     LaunchedEffect(Unit) {
         val intent = Intent(context, SensorService::class.java);
@@ -213,6 +216,21 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
     val scrollState = rememberScrollState();
     Column(modifier.fillMaxSize().verticalScroll(scrollState)) {
         Column(Modifier.padding(15.dp)) {
+
+            Text(text = "Overview",
+                style = TextStyle(fontFamily = funnelSans, fontSize = 32.sp, fontWeight = FontWeight.SemiBold))
+
+            Text(text = "Informacion recogida por tus sensores",
+                style = TextStyle(fontFamily = funnelSans, fontSize = 15.sp, fontWeight = FontWeight.Light))
+
+
+            Spacer(Modifier.padding(5.dp))
+            Row {
+                Text(text = "Filtro ${filtroString}",
+                    style = TextStyle(fontFamily = funnelSans, fontSize = 15.sp, fontWeight = FontWeight.Light))
+            }
+
+            Spacer(modifier = Modifier.padding(10.dp))
             InfoComponent(Modifier.height(400.dp), R.drawable.start_image_ph, "${data?.ph}", "ph", "acido");
             Spacer(Modifier.padding(10.dp));
             InfoComponent(Modifier.height(400.dp), R.drawable.startemperature, "${data?.temp}", "°C", "frio");
