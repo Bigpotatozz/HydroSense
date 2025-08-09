@@ -23,7 +23,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
-class SensorViewModel @Inject constructor(private val notificacionHelper: NotificacionHelper, private val sensorRepository: SensorRepository): ViewModel() {
+class SensorViewModel @Inject constructor(private val notificacionHelper: NotificacionHelper,
+                                          private val sensorRepository: SensorRepository,
+                                          private val mqttClientProvider: MqttClientProvider): ViewModel() {
 
     val flow: StateFlow<SensorResponse?> = sensorRepository.sensorData.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
@@ -34,6 +36,10 @@ class SensorViewModel @Inject constructor(private val notificacionHelper: Notifi
         notificacionHelper.showNotification(titulo, mensaje);
     }
 
+    fun controlSensores(estado: Boolean){
+
+        mqttClientProvider.sendDataMqtt(estado)
+    }
 
 
 

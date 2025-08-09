@@ -115,6 +115,8 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
     var color2 by rememberSaveable { mutableStateOf(0xFFE43636) };
     var color3 by rememberSaveable { mutableStateOf(0xFFE43636) };
 
+    var estadoSensores: Boolean by rememberSaveable { mutableStateOf(false) }
+
 
     LaunchedEffect(Unit) {
         val intent = Intent(context, SensorService::class.java);
@@ -234,6 +236,13 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
             Text(text = "Informacion recogida por tus sensores",
                 style = TextStyle(fontFamily = funnelSans, fontSize = 15.sp, fontWeight = FontWeight.Light))
 
+
+            Button(onClick = {
+                sensorViewModel.controlSensores(estadoSensores);
+                estadoSensores = !estadoSensores;
+            }) {
+                Text(text = "Apagar sensores")
+            }
 
             Spacer(Modifier.padding(5.dp))
             Row {
