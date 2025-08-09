@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -56,6 +57,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -105,13 +107,13 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
     val data by sensorViewModel.flow.collectAsState(null);
     var notificationState by rememberSaveable {mutableStateOf(true)};
     var timerState by rememberSaveable { mutableStateOf(false) };
-    var waterState by rememberSaveable { mutableStateOf("Buena") }
-    var rectangleDescription by rememberSaveable { mutableStateOf("El agua esta limpia y en buen estado") };
-
-    var color: Long by rememberSaveable { mutableStateOf(0xFF83B4FF) }
-
+    var waterState by rememberSaveable { mutableStateOf("No data") }
+    var waterColor by rememberSaveable { mutableStateOf(0xFFE43636) }
     var filtroState by rememberSaveable { mutableStateOf(false) };
     var filtroString by rememberSaveable { mutableStateOf("apagado") };
+    var color1 by rememberSaveable { mutableStateOf(0xFFE43636) };
+    var color2 by rememberSaveable { mutableStateOf(0xFFE43636) };
+    var color3 by rememberSaveable { mutableStateOf(0xFFE43636) };
 
 
     LaunchedEffect(Unit) {
@@ -119,76 +121,87 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
         context.startService(intent);
     }
 
+    //logica de envio de notificaciones y control de estados
     LaunchedEffect(data) {
+        var estados: MutableList<Int> = mutableListOf();
 
-            data?.let {
-                when{
-                    (it.ph < 6) -> {
-                        if(notificationState != false){
-                            sensorViewModel.enviarNotificacion("Nivel de ph bajo", "El ph del agua esta bajo, favor de revisar")
-                            notificationState = false;
-                            timerState = true;
-                        }
-                        waterState = "Mal estado"
-                        rectangleDescription = "El agua no es optima para su uso"
-                        color = 0xFFA16D28
+        data?.let {
+            it.ph.let {
+                when {
+                    (it < 7) -> {
+                        color1 = 0xFFFFE31A
+                        estados.add(0)
                     }
-                    (it.ph > 7) -> {
-                        if(notificationState != false){
-                            sensorViewModel.enviarNotificacion("Nivel de ph bajo", "El ph del agua es alto, favor de revisar")
-                            notificationState = false;
-                            timerState = true;
-                        }
-                        waterState = "Mal estado"
-                        rectangleDescription = "El agua no es optima para su uso"
-                        color = 0xFFA16D28
+                    (it >= 7 && it < 9) -> {
+                        color1 = 0xFF6EC207
+                        estados.add(1)
                     }
-                    (it.temp < 15) -> {
-                        if(notificationState != false){
-                            sensorViewModel.enviarNotificacion("Temperatura baja", "La temperatura del agua es bajo, favor de revisar")
-                            notificationState = false;
-                            timerState = true;
-                        }
-                        waterState = "Mal estado"
-                        rectangleDescription = "El agua no es optima para su uso"
-                        color = 0xFFA16D28
+                    (it >= 9) -> {
+                        color1 = 0xFF7BD3EA
+                        estados.add(0)
                     }
-                    (it.temp > 25) -> {
-                        if(notificationState != false){
-                            sensorViewModel.enviarNotificacion("Temperatura baja", "La temperatura del agua es alto, favor de revisar")
-                            notificationState = false;
-                            timerState = true;
-                        }
-                        waterState = "Mal estado"
-                        rectangleDescription = "El agua no es optima para su uso"
-                        color = 0xFFA16D28
+                }
+            };
+            it.temp.let {
+                when {
+                    (it < 15) -> {
+                        color2 = 0xFF7BD3EA
+                        estados.add(0);
                     }
-                    (it.turbidez > 30) -> {
-                        if(notificationState != false){
-                            sensorViewModel.enviarNotificacion("Turbidez alta", "La turbidez del agua esta alta, favor de revisar")
-                            notificationState = false;
-                            timerState = true;
-                        }
-                        waterState = "Mal estado"
-                        rectangleDescription = "El agua no es optima para su uso"
-                        color = 0xFFA16D28
+                    (it >= 15 && it < 25) -> {
+                        color2 = 0xFF6EC207
+                        estados.add(1)
                     }
-                    else -> {
-                        waterState = "Buena"
-                        rectangleDescription = "El agua esta limpia y en buen estado"
-                        timerState = false;
-                        notificationState = true;
-                        color = 0xFF83B4FF
+                    (it >= 25) -> {
+                        color2 = 0xFFFFE31A
+                        estados.add(0)
+                    }
+                }
+            }
+            it.turbidez.let {
+                when {
+                    (it <= 5) -> {
+                        color3 = 0xFF6EC207
+                        estados.add(1)
+                    }
+                    (it > 5 && it < 25) -> {
+                        color3 = 0xFFFFE31A
+                        estados.add(0)
+                    }
+                    (it > 25) -> {
+                        color3 = 0xFFE43636
+                        estados.add(0)
                     }
                 }
             }
 
-    }
+        }
 
+
+
+        Log.i("OSCAR", "Estados: $estados")
+
+        if(estados.contains(0)){
+            waterState = "Mal estado";
+            waterColor = 0xFFE43636;
+
+            if(notificationState != false){
+                sensorViewModel.enviarNotificacion("Alerta de calidad del agua", "Se detectaron parámetros fuera del rango seguro. Revisa los sensores y evita el uso del agua hasta corregir el problema");
+                notificationState = false;
+                timerState = true;
+            }
+
+        }else{
+            waterState = "Buen estado";
+            waterColor = 0xFF6EC207;
+        }
+
+
+    }
     Log.i("OSCAR", "${data}")
 
     if(timerState == true) {
-        Timer(2000) {
+        Timer(60) {
             notificationState = true;
             timerState = false;
         }
@@ -211,8 +224,6 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 
     };
 
-
-
     val scrollState = rememberScrollState();
     Column(modifier.fillMaxSize().verticalScroll(scrollState)) {
         Column(Modifier.padding(15.dp)) {
@@ -229,13 +240,32 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
                 Text(text = "Filtro ${filtroString}",
                     style = TextStyle(fontFamily = funnelSans, fontSize = 15.sp, fontWeight = FontWeight.Light))
             }
+            Spacer(Modifier.padding(10.dp))
+
+            WaterStateComponent(estado = waterState, color = waterColor);
 
             Spacer(modifier = Modifier.padding(10.dp))
-            InfoComponent(Modifier.height(400.dp), R.drawable.start_image_ph, "${data?.ph}", "ph", "acido");
+            InfoComponent(Modifier.height(400.dp),
+                R.drawable.ph, data?.ph,
+                "ph",
+                "acido",
+               color1);
             Spacer(Modifier.padding(10.dp));
-            InfoComponent(Modifier.height(400.dp), R.drawable.startemperature, "${data?.temp}", "°C", "frio");
+
+            InfoComponent(Modifier.height(400.dp),
+                R.drawable.temperatura, data?.temp,
+                "°C",
+                "frio",
+                color2);
             Spacer(Modifier.padding(10.dp));
-            InfoComponent(Modifier.height(400.dp), R.drawable.starturbidez, "${data?.turbidez}","unt", "limpio");
+            InfoComponent(Modifier.height(400.dp),
+                R.drawable.turbidez,
+                data?.turbidez,
+                "unt",
+                "limpio",
+                color3);
+
+
         }
 
 
@@ -249,14 +279,20 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 @Preview(showBackground = true)
 fun HomeScreenPreview(){
     Column(Modifier.padding(15.dp).fillMaxSize()) {
-        InfoComponent(Modifier.height(400.dp), R.drawable.start_image_ph, "7.25", "ph", "acido");
+        WaterStateComponent(estado = "Buen estado", color = 0xFF6EC207);
+        Spacer(Modifier.padding(10.dp))
+        InfoComponent(Modifier.height(400.dp), R.drawable.ph, 7.25, "ph", "acido", "Buen estado");
     }
 
 }
 */
-
 @Composable
-fun InfoComponent(modifier: Modifier = Modifier, imagen: Int, data: String, medida: String, estado: String){
+fun InfoComponent(modifier: Modifier = Modifier,
+                  imagen: Int, data: Double?,
+                  medida: String,
+                  estado: String,
+                  color: Long){
+
 
     Column (modifier.shadow(elevation = 2.dp, shape = RoundedCornerShape(15.dp))
         .background(Color.White)){
@@ -292,25 +328,73 @@ fun InfoComponent(modifier: Modifier = Modifier, imagen: Int, data: String, medi
 
             }
 
-            Button(modifier = Modifier
+            Box(Modifier
                 .height(55.dp)
-                .weight(1f),
-                shape = RoundedCornerShape(10.dp),
+                .weight(1f)
+                .clip(RoundedCornerShape(15.dp))
+                .background(Color(color))
+                .padding(15.dp),
+                contentAlignment = Alignment.Center
 
-                onClick = {
-                }) {
-                Row (verticalAlignment = Alignment.CenterVertically,
-                    ){
+               ){
 
-                    Icon(Icons.Filled.KeyboardArrowRight, contentDescription = "Mas informacion")
+                Row(Modifier.fillMaxWidth()) {
+
+                    Icon(imageVector = Icons.Filled.WaterDrop,
+                        contentDescription = "Icono de agua",
+                        tint = Color.White,
+                        modifier = Modifier.size(30.dp))
                     Spacer(Modifier.padding(5.dp))
-                    Text("Detalles")
+                    Text("${data} ${medida}" ,
+                        style = TextStyle(fontFamily = funnelSans, fontWeight = FontWeight.Bold, fontSize = 22.sp),
+                        color = Color.White,
+                        modifier = Modifier.align(Alignment.CenterVertically))
+
+
                 }
+
 
             }
         }
     }
 
+}
+
+@Composable
+fun WaterStateComponent(estado: String, color: Long){
+
+    Row(Modifier
+        .fillMaxWidth()
+        .shadow(elevation = 2.dp, shape = RoundedCornerShape(15.dp))
+        .background(Color(0xFFFFFFDD))
+        .padding(20.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+
+        Image(painter = painterResource(id = R.drawable.general_state_img),
+            contentDescription = "Estado del agua",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.weight(1f).size(100.dp))
+
+        Column(Modifier.weight(1f)) {
+            Text("Estado general del agua:",
+                style = TextStyle(fontFamily = funnelSans, fontWeight = FontWeight.SemiBold, fontSize = 18.sp),
+                );
+
+            Spacer(Modifier.padding(5.dp))
+            Box(Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color(color))
+                .padding(6.dp)
+                ){
+                Text("${estado}",
+                    style = TextStyle(fontFamily = funnelSans, fontWeight = FontWeight.SemiBold, fontSize = 18.sp),
+                    color = Color.White)
+            }
+
+        }
+
+
+    }
 }
 
 
