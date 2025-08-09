@@ -4,14 +4,20 @@ import com.oscar.hydrosense.R
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +25,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -41,10 +49,12 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -52,6 +62,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -230,51 +241,7 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
     Column(modifier.fillMaxSize().verticalScroll(scrollState)) {
         Column(Modifier.padding(15.dp)) {
 
-            Text(text = "Overview",
-                style = TextStyle(fontFamily = funnelSans, fontSize = 32.sp, fontWeight = FontWeight.SemiBold))
-
-            Text(text = "Informacion recogida por tus sensores",
-                style = TextStyle(fontFamily = funnelSans, fontSize = 15.sp, fontWeight = FontWeight.Light))
-
-
-            Button(onClick = {
-                sensorViewModel.controlSensores(estadoSensores);
-                estadoSensores = !estadoSensores;
-            }) {
-                Text(text = "Apagar sensores")
-            }
-
-            Spacer(Modifier.padding(5.dp))
-            Row {
-                Text(text = "Filtro ${filtroString}",
-                    style = TextStyle(fontFamily = funnelSans, fontSize = 15.sp, fontWeight = FontWeight.Light))
-            }
-            Spacer(Modifier.padding(10.dp))
-
-            WaterStateComponent(estado = waterState, color = waterColor);
-
-            Spacer(modifier = Modifier.padding(10.dp))
-            InfoComponent(Modifier.height(400.dp),
-                R.drawable.ph, data?.ph,
-                "ph",
-                "acido",
-               color1);
-            Spacer(Modifier.padding(10.dp));
-
-            InfoComponent(Modifier.height(400.dp),
-                R.drawable.temperatura, data?.temp,
-                "°C",
-                "frio",
-                color2);
-            Spacer(Modifier.padding(10.dp));
-            InfoComponent(Modifier.height(400.dp),
-                R.drawable.turbidez,
-                data?.turbidez,
-                "unt",
-                "limpio",
-                color3);
-
-
+            HomeScreenPreview();
         }
 
 
@@ -283,130 +250,63 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 
 
 
-/*
+
 @Composable
 @Preview(showBackground = true)
 fun HomeScreenPreview(){
-    Column(Modifier.padding(15.dp).fillMaxSize()) {
-        WaterStateComponent(estado = "Buen estado", color = 0xFF6EC207);
-        Spacer(Modifier.padding(10.dp))
-        InfoComponent(Modifier.height(400.dp), R.drawable.ph, 7.25, "ph", "acido", "Buen estado");
+
+    var cardImages: List<Int> = listOf( R.drawable.ph_landscape, R.drawable.temperatura, R.drawable.turbidez);
+
+    val listState = rememberLazyListState();
+    val couroutineScope = rememberCoroutineScope();
+
+    val currentItem by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex;
+        }
+    }
+
+
+
+    Column(Modifier.fillMaxSize().padding(16.dp)) {
+        Text("Sensores",
+            style = TextStyle(fontFamily = funnelSans, fontWeight = FontWeight.Bold, fontSize = 30.sp))
+
+        Row (Modifier.padding(20.dp)){
+            CardComponent();
+        }
+
     }
 
 }
+
+
+@Composable
+fun CardComponent(){
+
+    data class CarouselItem(
+        val id: Int,
+        @DrawableRes val imageResId: Int,
+        val contentDescription: String
+    );
+
+    val items = remember {
+        listOf(
+            CarouselItem(0, R.drawable.ph, "cupcake"),
+            CarouselItem(1, R.drawable.general_state_img, "donut"),
+            CarouselItem(2, R.drawable.temperatura, "eclair"),
+        )
+    }
+
+}
+
+
+/*
+Box(Modifier.aspectRatio(1.5f/2.5f).clip(RoundedCornerShape(40.dp))){
+    Image(painter = painterResource(R.drawable.ph_landscape),
+        contentDescription = "PH",
+        contentScale = ContentScale.Crop,
+        modifier = Modifier.matchParentSize())
+}
+
 */
-@Composable
-fun InfoComponent(modifier: Modifier = Modifier,
-                  imagen: Int, data: Double?,
-                  medida: String,
-                  estado: String,
-                  color: Long){
-
-
-    Column (modifier.shadow(elevation = 2.dp, shape = RoundedCornerShape(15.dp))
-        .background(Color.White)){
-        Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(15.dp)).weight(1f)){
-            Image(painter = painterResource(id = imagen),
-                contentDescription = "Imagen de inicio ${medida}",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.matchParentSize());
-        }
-
-        Row(Modifier.padding(16.dp).background(Color.White).fillMaxWidth()) {
-            Column ( modifier = Modifier.weight(1f)){
-                Text("Informacion:",
-                    style = TextStyle(fontFamily = funnelSans,
-                        fontSize = 16.sp, fontWeight = FontWeight.SemiBold));
-                Spacer(Modifier.padding(5.dp))
-                Row {
-                    Box(Modifier.clip(RoundedCornerShape(5.dp)).background(Color(0xFF78C841)).padding(3.dp)){
-                        Text("${data}", color = Color.White, style = TextStyle(fontWeight = FontWeight.Bold))
-                    }
-                    Spacer(Modifier.padding(2.dp))
-                    Box(Modifier.clip(RoundedCornerShape(5.dp)).background(Color(0xFF1A2A80)).padding(3.dp)){
-                        Text("${medida}", color = Color.White , style = TextStyle(fontWeight = FontWeight.Bold))
-                    }
-                    Spacer(Modifier.padding(2.dp))
-                    Box(Modifier.clip(RoundedCornerShape(5.dp)).background(Color(0xFFD3AF37)).padding(3.dp)){
-                        Text("${estado}", color = Color.White , style = TextStyle(fontWeight = FontWeight.Bold))
-                    }
-                }
-
-
-
-
-            }
-
-            Box(Modifier
-                .height(55.dp)
-                .weight(1f)
-                .clip(RoundedCornerShape(15.dp))
-                .background(Color(color))
-                .padding(15.dp),
-                contentAlignment = Alignment.Center
-
-               ){
-
-                Row(Modifier.fillMaxWidth()) {
-
-                    Icon(imageVector = Icons.Filled.WaterDrop,
-                        contentDescription = "Icono de agua",
-                        tint = Color.White,
-                        modifier = Modifier.size(30.dp))
-                    Spacer(Modifier.padding(5.dp))
-                    Text("${data} ${medida}" ,
-                        style = TextStyle(fontFamily = funnelSans, fontWeight = FontWeight.Bold, fontSize = 22.sp),
-                        color = Color.White,
-                        modifier = Modifier.align(Alignment.CenterVertically))
-
-
-                }
-
-
-            }
-        }
-    }
-
-}
-
-@Composable
-fun WaterStateComponent(estado: String, color: Long){
-
-    Row(Modifier
-        .fillMaxWidth()
-        .shadow(elevation = 2.dp, shape = RoundedCornerShape(15.dp))
-        .background(Color(0xFFFFFFDD))
-        .padding(20.dp),
-        verticalAlignment = Alignment.CenterVertically) {
-
-        Image(painter = painterResource(id = R.drawable.general_state_img),
-            contentDescription = "Estado del agua",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.weight(1f).size(100.dp))
-
-        Column(Modifier.weight(1f)) {
-            Text("Estado general del agua:",
-                style = TextStyle(fontFamily = funnelSans, fontWeight = FontWeight.SemiBold, fontSize = 18.sp),
-                );
-
-            Spacer(Modifier.padding(5.dp))
-            Box(Modifier
-                .clip(RoundedCornerShape(10.dp))
-                .background(Color(color))
-                .padding(6.dp)
-                ){
-                Text("${estado}",
-                    style = TextStyle(fontFamily = funnelSans, fontWeight = FontWeight.SemiBold, fontSize = 18.sp),
-                    color = Color.White)
-            }
-
-        }
-
-
-    }
-}
-
-
-
-
-
