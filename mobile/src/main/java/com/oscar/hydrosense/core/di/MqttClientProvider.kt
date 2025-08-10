@@ -24,7 +24,7 @@ class MqttClientProvider @Inject constructor() {
     private val mqttClient = MqttClient.builder()
         .useMqttVersion5()
         .identifier(UUID.randomUUID().toString())
-        .serverHost("42a15c797ff74200838c99684b8171eb.s1.eu.hivemq.cloud")
+        .serverHost("cdc2f4233bd6466e9a7d8f22139fefa5.s1.eu.hivemq.cloud")
         .serverPort(8883)
         .sslWithDefaultConfig()
         .buildAsync();
@@ -36,8 +36,8 @@ class MqttClientProvider @Inject constructor() {
             mqttClient
                 .connectWith()
                 .simpleAuth()
-                .username("oscar")
-                .password("Holaquehace12".toByteArray())
+                .username("erick")
+                .password("Minefort10".toByteArray())
                 .applySimpleAuth()
                 .cleanStart(true)
                 .send()
@@ -56,7 +56,7 @@ class MqttClientProvider @Inject constructor() {
 
         mqttClient
             .subscribeWith()
-            .topicFilter("sensor/agua")
+            .topicFilter("iot/turbidez")
             .callback {message ->
 
                 val optionalPayload = message.payload
