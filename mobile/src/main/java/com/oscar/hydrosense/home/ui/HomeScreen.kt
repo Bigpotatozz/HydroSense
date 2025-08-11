@@ -1,13 +1,16 @@
 package com.oscar.hydrosense.home.ui
 
+import android.Manifest
 import com.oscar.hydrosense.R
 import android.content.Intent
+import android.icu.text.DecimalFormat
 import android.os.Build
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,9 +28,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -38,6 +46,9 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -59,6 +70,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -89,6 +102,7 @@ import com.oscar.hydrosense.models.NotificacionHelper
 import com.oscar.hydrosense.services.SensorService
 import com.oscar.hydrosense.theme.funnelSans
 import kotlinx.coroutines.flow.first
+import kotlin.math.absoluteValue
 
 
 @Composable
@@ -119,14 +133,33 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
     var notificationState by rememberSaveable {mutableStateOf(true)};
     var timerState by rememberSaveable { mutableStateOf(false) };
     var waterState by rememberSaveable { mutableStateOf("No data") }
-    var waterColor by rememberSaveable { mutableStateOf(0xFFE43636) }
-    var filtroState by rememberSaveable { mutableStateOf(false) };
-    var filtroString by rememberSaveable { mutableStateOf("apagado") };
-    var color1 by rememberSaveable { mutableStateOf(0xFFE43636) };
-    var color2 by rememberSaveable { mutableStateOf(0xFFE43636) };
-    var color3 by rememberSaveable { mutableStateOf(0xFFE43636) };
+    var waterColor by rememberSaveable { mutableStateOf(0xFFCDFAD5) }
+    var phTitle by rememberSaveable { mutableStateOf("Neutro") };
+    var phDescription by rememberSaveable { mutableStateOf("Ideal para cuidar plantas o animales") };
 
-    var estadoSensores: Boolean by rememberSaveable { mutableStateOf(false) }
+    var tempDescription by rememberSaveable { mutableStateOf("Temperatura ideal") };
+
+    var turbidezTitle by rememberSaveable { mutableStateOf("Agua limpia") };
+
+    var estadoSensores: Boolean by rememberSaveable { mutableStateOf(true) }
+    var estadoSensoresString: String by rememberSaveable { mutableStateOf("Activado") }
+    var buttonColorSensores: Long by rememberSaveable { mutableStateOf(0xFF5AA469) }
+    var buttonDescriptionSensores: String by rememberSaveable { mutableStateOf("Apagar") }
+    var topStateSenores: Long by rememberSaveable { mutableStateOf(0xFF5AA469) }
+
+    if(estadoSensores != false) {
+        buttonColorSensores = 0xFFAF3E3E
+        topStateSenores = 0xFF5AA469
+        buttonDescriptionSensores = "Apagar";
+        estadoSensoresString = "Activado"
+    }else{
+        buttonColorSensores = 0xFF5AA469;
+        topStateSenores = 0xFFAF3E3E
+        estadoSensoresString = "Desactivado"
+        buttonDescriptionSensores = "Activar"
+    }
+
+
 
 
     LaunchedEffect(Unit) {
@@ -137,36 +170,43 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
     //logica de envio de notificaciones y control de estados
     LaunchedEffect(data) {
         var estados: MutableList<Int> = mutableListOf();
-
         data?.let {
             it.ph.let {
                 when {
                     (it < 7) -> {
-                        color1 = 0xFFFFE31A
+
+                        phTitle = "Ácido"
+                        phDescription = "Dificulta nutrientes en las plantas"
                         estados.add(0)
                     }
                     (it >= 7 && it < 9) -> {
-                        color1 = 0xFF6EC207
+                        phTitle = "Neutro"
+                        phDescription = "Ideal para cuidar plantas o animales"
                         estados.add(1)
                     }
                     (it >= 9) -> {
-                        color1 = 0xFF7BD3EA
+
                         estados.add(0)
+                        phTitle = "Ácido"
+                        phDescription = "Dificulta nutrientes en las plantas" 
                     }
                 }
             };
             it.temp.let {
                 when {
                     (it < 15) -> {
-                        color2 = 0xFF7BD3EA
+
+                        tempDescription = "Temperatura baja"
                         estados.add(0);
                     }
                     (it >= 15 && it < 25) -> {
-                        color2 = 0xFF6EC207
+
+                        tempDescription = "Temperatura ideal"
                         estados.add(1)
                     }
                     (it >= 25) -> {
-                        color2 = 0xFFFFE31A
+
+                        tempDescription = "Temperatura alta"
                         estados.add(0)
                     }
                 }
@@ -174,15 +214,16 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
             it.turbidez.let {
                 when {
                     (it <= 5) -> {
-                        color3 = 0xFF6EC207
+
+                        turbidezTitle = "Agua limpia"
                         estados.add(1)
                     }
                     (it > 5 && it < 25) -> {
-                        color3 = 0xFFFFE31A
+                        turbidezTitle = "Agua saturada"
                         estados.add(0)
                     }
                     (it > 25) -> {
-                        color3 = 0xFFE43636
+                        turbidezTitle = "Agua sucia"
                         estados.add(0)
                     }
                 }
@@ -196,7 +237,7 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 
         if(estados.contains(0)){
             waterState = "Mal estado";
-            waterColor = 0xFFE43636;
+            waterColor = 0xFFFF8080;
 
             if(notificationState != false){
                 sensorViewModel.enviarNotificacion("Alerta de calidad del agua", "Se detectaron parámetros fuera del rango seguro. Revisa los sensores y evita el uso del agua hasta corregir el problema");
@@ -206,7 +247,7 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 
         }else{
             waterState = "Buen estado";
-            waterColor = 0xFF6EC207;
+            waterColor = 0xFFCDFAD5;
         }
 
 
@@ -224,7 +265,7 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
 
         //crea una variable que guarda el permiso para notificaciones de la aplicacion
-        val permisoNotificaciones = rememberPermissionState(android.Manifest.permission.POST_NOTIFICATIONS);
+        val permisoNotificaciones = rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS);
 
         //cuando la aplicacion se ejecute...
         LaunchedEffect(Unit) {
@@ -238,11 +279,83 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
     };
 
     val scrollState = rememberScrollState();
-    Column(modifier.fillMaxSize().verticalScroll(scrollState)) {
-        Column(Modifier.padding(15.dp)) {
+    Column(modifier.fillMaxSize().padding(15.dp).verticalScroll(scrollState)) {
 
-            HomeScreenPreview();
-        }
+            Row (Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween){
+                Text(text = "Sensores",
+                    style = TextStyle(fontFamily = funnelSans, fontSize = 32.sp, fontWeight = FontWeight.SemiBold))
+
+                Row (verticalAlignment = Alignment.CenterVertically){
+                    Box(
+                        modifier = Modifier
+                            .size(12.dp)
+                            .shadow(4.dp, shape = CircleShape)
+                            .background(color = Color(topStateSenores), shape = CircleShape)
+                    )
+
+                    Spacer(Modifier.padding(5.dp))
+                    Text(text = estadoSensoresString,
+                        style = TextStyle(fontFamily = funnelSans, fontSize = 15.sp, fontWeight = FontWeight.SemiBold))
+
+                }
+
+            }
+
+
+
+
+            Spacer(modifier = Modifier.padding(10.dp))
+
+            HorizontalWidget(Modifier, waterState, "Estatus del cuerpo de agua", waterColor);
+
+            Spacer(Modifier.padding(7.dp))
+            Row (Modifier.fillMaxWidth().fillMaxHeight(1f)){
+                VerticalWidget(Modifier.weight(1f).fillMaxHeight(0.7f),
+                    "${data?.ph ?: 0}",
+                    "Medicion del ph:",
+                    phTitle,
+                    phDescription);
+
+                Spacer(Modifier.padding(5.dp))
+                Column(Modifier.weight(1f).fillMaxHeight(0.7f), verticalArrangement = Arrangement.SpaceBetween){
+                    SquareWidget(Modifier, "${data?.temp ?: 0}", "Temp", "°C", 0xFF5A72A0, tempDescription)
+                    Spacer(Modifier.padding(5.dp))
+                    SquareWidget(Modifier, "${data?.turbidez ?: 0}", "Turbidez", "UNT", 0xFF1A2130, turbidezTitle)
+                }
+
+            }
+            Spacer(Modifier.padding(7.dp))
+
+            DirectionWidget(Modifier.height(60.dp));
+
+            Spacer(Modifier.padding(7.dp))
+
+            Button(onClick = {
+
+                if(estadoSensores != true){
+                    estadoSensores = true;
+                    sensorViewModel.controlSensores(true);
+                    Log.i("OSCAR", "Enviando datos")
+                }else{
+                    estadoSensores = false;
+                    sensorViewModel.controlSensores(false);
+                    Log.i("OSCAR", "Enviando datos desactivados")
+
+                }
+
+            },
+                Modifier.fillMaxWidth()
+                    .shadow(8.dp, shape = RoundedCornerShape(10.dp))
+                    .height(48.dp),
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonColors(
+                    containerColor = Color(buttonColorSensores),
+                    contentColor = Color.White,
+                    disabledContainerColor = Color(buttonColorSensores),
+                    disabledContentColor = Color.White
+                )) {
+                Text(text = buttonDescriptionSensores);
+            }
 
 
     }
@@ -255,58 +368,177 @@ fun Home(modifier: Modifier, navController: NavController, sensorViewModel: Sens
 @Preview(showBackground = true)
 fun HomeScreenPreview(){
 
-    var cardImages: List<Int> = listOf( R.drawable.ph_landscape, R.drawable.temperatura, R.drawable.turbidez);
+    Column(Modifier.padding(10.dp).fillMaxSize()) {
+/*
+        Text(text = "Overview",
+            style = TextStyle(fontFamily = funnelSans, fontSize = 32.sp, fontWeight = FontWeight.SemiBold))
 
-    val listState = rememberLazyListState();
-    val couroutineScope = rememberCoroutineScope();
+        Text(text = "Informacion recogida por tus sensores",
+            style = TextStyle(fontFamily = funnelSans, fontSize = 15.sp, fontWeight = FontWeight.Light))
 
-    val currentItem by remember {
-        derivedStateOf {
-            listState.firstVisibleItemIndex;
+        Spacer(modifier = Modifier.padding(10.dp))
+
+        HorizontalWidget(Modifier, "Buen estado", "Estado general del agua", 0xFF6EC207);
+
+        Spacer(Modifier.padding(7.dp))
+        Row (Modifier.fillMaxWidth().fillMaxHeight(1f)){
+            VerticalWidget(Modifier.weight(1f).fillMaxHeight(0.7f), "7.0", "Medicion del PH", "Neutro", "Ideal para cuidar plantas o animales");
+
+            Spacer(Modifier.padding(5.dp))
+            Column(Modifier.weight(1f).fillMaxHeight(0.7f), verticalArrangement = Arrangement.SpaceBetween){
+                SquareWidget(Modifier, "16", "Temp", "° Celsius", 0xFF5A72A0, "adwad")
+                SquareWidget(Modifier, "5.0", "Turbidez", "UNT", 0xFF1A2130,"Adwada")
+            }
+
         }
-    }
+        */
+
+        Spacer(Modifier.padding(7.dp))
+
+        DirectionWidget(Modifier.height(60.dp));
+        Spacer(Modifier.padding(7.dp))
 
 
-
-    Column(Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Sensores",
-            style = TextStyle(fontFamily = funnelSans, fontWeight = FontWeight.Bold, fontSize = 30.sp))
-
-        Row (Modifier.padding(20.dp)){
-            CardComponent();
-        }
 
     }
-
 }
 
 
 @Composable
-fun CardComponent(){
+fun HorizontalWidget(modifier: Modifier, data: String, description: String, color: Long){
 
-    data class CarouselItem(
-        val id: Int,
-        @DrawableRes val imageResId: Int,
-        val contentDescription: String
-    );
+    Column(modifier = modifier
+        .fillMaxWidth()
+        .fillMaxHeight(0.3f)
+        .shadow(8.dp, shape = RoundedCornerShape(20.dp))
+        .background(Color(color))
+        .padding(20.dp)
+    ) {
+        Text("Estado general del agua:",
+            style = TextStyle(fontSize = 28.sp, fontFamily = funnelSans, fontWeight = FontWeight.SemiBold),
+            modifier = Modifier.width(200.dp));
+        Text(data,
+            style = TextStyle(fontSize = 28.sp, fontFamily = funnelSans, fontWeight = FontWeight.SemiBold),
+            color = Color(0xFF1A2130));
 
-    val items = remember {
-        listOf(
-            CarouselItem(0, R.drawable.ph, "cupcake"),
-            CarouselItem(1, R.drawable.general_state_img, "donut"),
-            CarouselItem(2, R.drawable.temperatura, "eclair"),
-        )
+        Text(description,
+            style = TextStyle(fontSize = 13.sp, fontFamily = funnelSans, fontWeight = FontWeight.Light));
     }
 
+};
+
+@Composable
+fun VerticalWidget(modifier: Modifier, data: String, label: String, titulo: String, descripcion: String){
+    Column(modifier = modifier
+        .shadow(8.dp, shape = RoundedCornerShape(20.dp))
+        .background(Color(0xFFFDFFE2))
+        .padding(20.dp)
+        .fillMaxWidth(),
+        verticalArrangement = Arrangement.Center) {
+        Text("${label}",
+            style = TextStyle(fontSize = 28.sp, fontFamily = funnelSans, fontWeight = FontWeight.SemiBold));
+        Spacer(Modifier.padding(18.dp))
+
+        Column(modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally){
+
+            Text("${data}",
+                style = MaterialTheme.typography.displayLarge.copy(
+                    fontFamily = funnelSans,
+                    fontWeight = FontWeight.SemiBold
+                ));
+
+            Spacer(Modifier.padding(15.dp))
+            Text(titulo,
+                style = TextStyle(fontSize = 28.sp, fontFamily = funnelSans, fontWeight = FontWeight.SemiBold));
+
+            Text(descripcion,
+                style = TextStyle(fontSize = 15.sp, fontFamily = funnelSans, fontWeight = FontWeight.Light),
+                textAlign = TextAlign.Center)
+
+            Spacer(Modifier.padding(3.dp))
+
+        }
+    }
+};
+
+@Composable
+fun SquareWidget(modifier: Modifier, data: String, label: String, unidadData: String, color: Long, descripcion: String){
+
+    Column(modifier = Modifier
+        .shadow(8.dp, shape = RoundedCornerShape(20.dp))
+        .background(Color(color))
+        .height(165.dp)
+        .padding(15.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center) {
+        Text("${label}",
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontFamily = funnelSans, fontWeight = FontWeight.SemiBold
+            ),
+            color = Color(0xFFFDFFE2));
+
+        Column(modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+            Text("${data}",
+                style = TextStyle(fontSize = 55.sp, fontFamily = funnelSans, fontWeight = FontWeight.SemiBold),
+                color = Color(0xFFFDFFE2));
+            Text("${unidadData}",
+                style = TextStyle(fontSize = 14.sp, fontFamily = funnelSans, fontWeight = FontWeight.Light),
+                textAlign = TextAlign.Center,
+                color = Color(0xFFFDFFE2))
+        }
+
+        Text(descripcion,
+            style = TextStyle(fontSize = 14.sp, fontFamily = funnelSans, fontWeight = FontWeight.Light),
+            textAlign = TextAlign.Center,
+            color = Color(0xFFFDFFE2))
+    }
+}
+
+@Composable
+fun DirectionWidget(modifier: Modifier) {
+    Row(
+        modifier
+            .shadow(8.dp, shape = RoundedCornerShape(20.dp))
+            .background(Color(0xFFD7D7D7))
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+
+        Icon(
+            Icons.Outlined.Explore,
+            contentDescription = "Ubicacion",
+            tint = Color.Black,
+            modifier = Modifier.size(33.dp)
+        )
+
+        Spacer(Modifier.padding(5.dp))
+        Column {
+
+            Text(
+                "Blvd. Universidad Tecnológica 225",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = funnelSans,
+                    fontWeight = FontWeight.Normal
+                ),
+            )
+            Text(
+                "Alias: Sensor UTL",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = funnelSans,
+                    fontWeight = FontWeight.Normal
+                ),
+            )
+
+        }
+
+    }
 }
 
 
-/*
-Box(Modifier.aspectRatio(1.5f/2.5f).clip(RoundedCornerShape(40.dp))){
-    Image(painter = painterResource(R.drawable.ph_landscape),
-        contentDescription = "PH",
-        contentScale = ContentScale.Crop,
-        modifier = Modifier.matchParentSize())
-}
 
-*/

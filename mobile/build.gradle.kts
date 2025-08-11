@@ -115,4 +115,7 @@ dependencies {
     //libreria para solicitar permisos
     implementation ("com.google.accompanist:accompanist-permissions:0.32.0")
 
+
+
+
 }
